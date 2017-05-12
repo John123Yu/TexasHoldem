@@ -2,11 +2,15 @@ const gameSetup = require('../app/setup');
 const gamePlay = require('../app/gamePlay');
 const Player = gameSetup.Player;
 let firstDeck = gameSetup.firstDeck;
-var startGame = gamePlay.startGame;
+const startGame = gamePlay.startGame;
+const firstToAct = gamePlay.firstToAct;
 
 var users = [];
+var players = [];
 var messages = [];
 var playersReady = 0;
+let pot;
+let highestBet;
 
 var is_user = function(user) {
 	var users_count = users.length;
@@ -35,15 +39,42 @@ module.exports = function Route(app, server) {
 	  	} else {
 	  		let newPlayer = new Player(data.name, data.buyin);
 	  		users.push(newPlayer);
-	  		socket.emit('load_messages', {current_user: newPlayer, messages: messages})
+	  		console.log(newPlayer.action);
+	  		socket.emit('initiate_player', {
+	  			messages,
+	  			current_user: newPlayer
+	  		})
 	  	}
 	  })
 
 	  socket.on('start_action', function(data) {
 	  	playersReady++;
 	  	if(playersReady === users.length){
-	  		startGame(firstDeck, users);
-		  	io.emit('dealt_cards', {users: users});
+	  		players = users;
+	  		pot = startGame(firstDeck, players);
+		  	io.emit('dealt_cards', {
+		  		players
+		  	});
+	  	}
+	  })
+
+	  socket.on('first_round', function(data){
+	  	let nextPosition;
+	  	if(data.user.position === 2 && players.length > 2) {
+	  		if(players.length > 3) {
+				nextPosition = 3;	  			
+	  		} else {
+	  			nextPosition = 0;
+	  		}
+	  		pot_highestBet = firstToAct(data.user, players, data.action, data.amount);
+	  		pot = pot_highestBet[0];
+	  		highestBet = pot_highestBet[1];
+	  		io.emit('first_act', {
+	  			nextPosition,
+	  			players,
+	  			highestBet,
+	  			pot
+	  		})
 	  	}
 	  })
 
@@ -52,8 +83,14 @@ module.exports = function Route(app, server) {
 
 
 	  socket.on('new_message', function(data) {
-	  	messages.push({name: data.user.name, message: data.message});
-	  	io.emit("post_new_message", {new_message: data.message, user: data.user.name})
+	  	messages.push({
+	  		name: data.user.name,
+	  		message: data.message
+	  	});
+	  	io.emit("post_new_message", {
+	  		new_message: data.message,
+	  		user: data.user.name
+	  	})
 	  })
 	})
 }

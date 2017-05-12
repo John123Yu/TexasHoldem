@@ -64,6 +64,7 @@ class Player {
 		this.name = name;
 		this.hand = [];
 		this.chipCount = buyin;
+		this.position;
 	}
 	takeCard(deck) {
 		this.hand.push(deck.dealRandomCard());
@@ -71,21 +72,21 @@ class Player {
 	}
 	action(action, amount = 0) {
 		if (action == 'Raise') {
-			if(Amount > this.chipCount) {
-				Amount = this.chipCount;
+			if(amount > this.chipCount) {
+				amount = this.chipCount;
 				this.chipCount = 0;
 			} else {
-				this.chipCount -= Amount;
+				this.chipCount -= amount;
 			}
-			return ['Raise', Amount];
+			return ['Raise', amount];
 		} else if (action == 'Call') {
-			if(Amount > this.chipCount) {
-				Amount = this.chipCount;
+			if(amount > this.chipCount) {
+				amount = this.chipCount;
 				this.chipCount = 0;
 			} else {
-				this.chipCount -= Amount;
+				this.chipCount -= amount;
 			}
-			return ['Call', Amount];
+			return ['Call', amount];
 		} else {
 			return ['Fold', 0];
 		}
