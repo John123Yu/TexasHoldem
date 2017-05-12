@@ -1,0 +1,81 @@
+<html>
+<head>
+<title></title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type ="text/javascript">
+    $(document).ready(function (){
+        var socket = io.connect();
+        var current_user;
+
+        var new_user = function() {
+            var name = prompt("Please enter your name");
+            // var buyin = prompt("Please enter your buy-in")
+            socket.emit("page_load", {
+                name: name,
+                buyin: 20
+            }); 
+        }
+        new_user();
+        socket.on('existing_user', function(data) {
+            $('.error').html(data.error);
+            new_user();
+        });
+        socket.on('load_messages', function(data) {
+            $('.error').html("")
+            current_user = data.current_user;
+            var messages = data.messages;
+            var messages_thread = '';
+            for(var i = 0; i < messages.length; i++) {
+                messages_thread += "<p>" + messages[i].name + ": " + messages[i].message + "</p>";
+            }
+            $('#message_board').append(messages_thread);
+        });
+
+
+
+        $('#new_message').submit(function() {
+            socket.emit('new_message', {message: $('#message').val(), user: current_user})
+            return false;
+        });
+        socket.on('post_new_message', function(data) {
+            console.log(current_user)
+            $('#message_board').append("<p>" + data.user + ": " + data.new_message + "</p>");
+        });
+
+        $('#start_action').submit(function() {
+            socket.emit('start_action', { 
+                user: current_user
+            })
+            $(this).hide();
+            return false;
+        });
+        socket.on('dealt_cards', function(data) {
+            for(let item of data.users) {
+                if(item.name === current_user.name) {
+                    current_user = item;
+                }
+            }
+            console.log(current_user);
+        })
+
+
+    })
+</script>
+</head>
+<body>
+    <div class="error"></div>
+    <div class = "container">
+        <p>Conversation Board</p>
+        <div id = "message_board">
+        </div>
+        <form id = "new_message">
+            <input type="text" id = "message" placeholder = "Enter Your Message">
+            <input type="submit" value = "submit" name="">
+        </form>
+        <form id = "start_action">
+            <input type="submit" value = "Start" name="">
+        </form>
+    </div>
+</body>
+</html>
