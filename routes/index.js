@@ -3,7 +3,7 @@ const gamePlay = require('../app/gamePlay');
 const Player = gameSetup.Player;
 let firstDeck = gameSetup.firstDeck;
 const startGame = gamePlay.startGame;
-const firstToAct = gamePlay.firstToAct;
+const firstRound = gamePlay.firstRound;
 
 var users = [];
 var players = [];
@@ -42,7 +42,7 @@ module.exports = function Route(app, server) {
 	  		console.log(newPlayer.action);
 	  		socket.emit('initiate_player', {
 	  			messages,
-	  			current_user: newPlayer
+	  			user: newPlayer
 	  		})
 	  	}
 	  })
@@ -58,22 +58,41 @@ module.exports = function Route(app, server) {
 	  	}
 	  })
 
-	  socket.on('first_round', function(data){
+	  socket.on('first_act', function(data){
 	  	let nextPosition;
-	  	if(data.user.position === 2 && players.length > 2) {
+	  	let user;
+	  	for(let item of players) {
+	  		if(data.user.name === item.name) {
+	  			user = item;
+	  		}
+	  	}
+	  	console.log(user);
+	  	if(data.position === 2 && players.length > 2) {
 	  		if(players.length > 3) {
 				nextPosition = 3;	  			
 	  		} else {
 	  			nextPosition = 0;
 	  		}
-	  		pot_highestBet = firstToAct(data.user, players, data.action, data.amount);
-	  		pot = pot_highestBet[0];
-	  		highestBet = pot_highestBet[1];
-	  		io.emit('first_act', {
+	  		pot_highestBet = firstRound( user, players, data.action, data.amount);
+	  		// let filteredPlayers = players.map( onePlayer => {
+	  		// 	onePlayer.hand = "You can't see this";
+	  		// 	return onePlayer;
+	  		// })
+	  		io.emit('first_round', {
 	  			nextPosition,
-	  			players,
-	  			highestBet,
-	  			pot
+	  			pot: pot_highestBet[0],
+	  			highestBet: pot_highestBet[1],
+	  			players: pot_highestBet[2]
+	  		})
+	  	}
+	  	if(data.position === 0 && players.length > 2) {
+	  		nextPosition = 1;
+	  		pot_highestBet = firstRound( user, players, data.action, data.amount);
+	  		io.emit('first_round', {
+	  			nextPosition,
+	  			pot: pot_highestBet[0],
+	  			highestBet: pot_highestBet[1],
+	  			players: pot_highestBet[2]
 	  		})
 	  	}
 	  })

@@ -17,23 +17,18 @@ module.exports = {
 		highestBet = .2;
 		return pot;
 	},
-	firstToAct(player, players, action, amount) {
-		console.log(player);
+	firstRound(user, players, action, amount) {
+		console.log(user);
 		if(action === 'raise') {
-			pot += player.action('raise', amount)[1];
+			pot += Number(user.action('raise', amount));
 			highestBet = amount;
 		} else if (action === 'call') {
-			pot += player.action('call', .2)[1];
+			pot += Number(user.action('call', amount));
 		} else {
 			players = players.filter( removePlayer => {
-				return removePlayer.name != player.name;
+				return removePlayer.name != user.name;
 			})
 		}
-		players = players.map( thisPlayer => {
-			if(thisPlayer.name === player.name) {
-				return player;
-			}
-		})
-		return [pot, highBet];
+		return [pot, highestBet, players];
 	}
 }

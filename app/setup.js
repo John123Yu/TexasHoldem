@@ -71,14 +71,14 @@ class Player {
 		return this;
 	}
 	action(action, amount = 0) {
-		if (action == 'Raise') {
+		if (action == 'raise') {
 			if(amount > this.chipCount) {
 				amount = this.chipCount;
 				this.chipCount = 0;
 			} else {
 				this.chipCount -= amount;
 			}
-			return ['Raise', amount];
+			return amount;
 		} else if (action == 'Call') {
 			if(amount > this.chipCount) {
 				amount = this.chipCount;
@@ -86,16 +86,18 @@ class Player {
 			} else {
 				this.chipCount -= amount;
 			}
-			return ['Call', amount];
+			return amount;
 		} else {
-			return ['Fold', 0];
+			return 0;
 		}
 	}
 	bigBlind() {
-		return this.chipCount -= .2;
+		this.chipCount -= .2;
+		return .2;
 	}
 	smallBlind() {
-		return this.chipCount -= .1;
+		this.chipCount -= .1;
+		return .1	
 	}
 }
 
