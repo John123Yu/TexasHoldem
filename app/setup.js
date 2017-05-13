@@ -79,7 +79,7 @@ class Player {
 				this.chipCount -= amount;
 			}
 			return amount;
-		} else if (action == 'Call') {
+		} else if (action == 'call') {
 			if(amount > this.chipCount) {
 				amount = this.chipCount;
 				this.chipCount = 0;
@@ -101,6 +101,20 @@ class Player {
 	}
 }
 
+class Board{
+	constructor() {
+		this.board = [];
+	}
+	flop(deck) {
+		for(var i = 0; i < 3; i++){
+			this.board.push(deck.dealRandomCard());
+		}
+	}
+	turnOrRiver(deck) {
+		this.board.push(deck.dealRandomCard());
+	}
+}
+
 function imageGenerator(suit, number) {
 	if(suit == "Spades") {
 		return `s${number}.png`;
@@ -116,7 +130,8 @@ function imageGenerator(suit, number) {
 var firstDeck = new Deck();
 
 module.exports = {
-	firstDeck: firstDeck,
-	Player: Player
+	firstDeck,
+	Player,
+	Board
 }
 
