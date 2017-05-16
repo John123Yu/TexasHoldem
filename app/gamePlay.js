@@ -28,5 +28,21 @@ module.exports = {
 			// })
 		}
 		return [pot, highestBet, players];
+	},
+	nextPositionCalc(nextPosition, players) {
+		nextPosition++;
+		if(!players[nextPosition]) {
+			nextPosition = 0;
+		}
+		return nextPosition;
+	},
+	is_user(user, users) {
+		var users_count = users.length;
+		for(var i = 0; i < users_count; i++) {
+			if(user == users[i]) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

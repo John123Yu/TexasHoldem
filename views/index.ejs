@@ -21,11 +21,11 @@ var new_user = function() {
     }); 
 }
 new_user();
-socket.on('existing_user', function(data) {
+socket.on('existing_user', data => {
     $('.error').html(data.error);
     new_user();
 });
-socket.on('initiate_player', function(data) {
+socket.on('initiate_player', data => {
     $('.error').html("")
     user = data.user;
     console.log(user.action);
@@ -37,25 +37,25 @@ socket.on('initiate_player', function(data) {
     $('#message_board').append(messages_thread);
 });
 
-$('#new_message').submit(function() {
+$('#new_message').submit( () => {
     socket.emit('new_message', {
         user,
         message: $('#message').val()
     })
     return false;
 });
-socket.on('post_new_message', function(data) {
+socket.on('post_new_message', data => {
     console.log(user)
     $('#message_board').append("<p>" + data.user + ": " + data.new_message + "</p>");
 });
 
-$('#start_action').submit(function() {
+$('#start_action').submit( function() {
     socket.emit('start_action', { user })
     $(this).hide();
     return false;
 });
 
-socket.on('one_round', function(data) {
+socket.on('one_round', data => {
     user = updateUser(data);
     console.log(user)
     console.log(data);
@@ -88,7 +88,7 @@ socket.on('one_round', function(data) {
     }
 })
 
-socket.on('end_game', function(data) {
+socket.on('end_game', data => {
     alert(data.message);
 })
 

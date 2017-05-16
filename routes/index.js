@@ -5,6 +5,8 @@ let Board = gameSetup.Board;
 const gamePlay = require('../app/gamePlay');
 const startGame = gamePlay.startGame;
 const firstRound = gamePlay.firstRound;
+const nextPositionCalc = gamePlay.nextPositionCalc;
+const is_user = gamePlay.is_user;
 
 let users = [];
 let players = [];
@@ -21,17 +23,17 @@ let oneEnd = true;
 
 module.exports = function Route(app, server) {
 
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
  res.render("index");
 })
 
 const io = require('socket.io').listen(server);
 
-io.sockets.on('connection', function (socket) {
+io.sockets.on('connection', socket => {
   console.log("WE ARE USING SOCKETS!");
 
-  socket.on('page_load', function(data) {
-  	if(is_user(data.name)) {
+  socket.on('page_load', data => {
+  	if(is_user(data.name, users)) {
   		socket.emit('existing_user', {error: 'this user already exists'})
   	} else {
   		let newPlayer = new Player(data.name, data.buyin);
@@ -43,7 +45,7 @@ io.sockets.on('connection', function (socket) {
   	}
   })
 
-  socket.on('start_action', function(data) {
+  socket.on('start_action', data => {
   	playersReady++;
   	round = 1;
   	if(playersReady === users.length){
@@ -62,7 +64,7 @@ io.sockets.on('connection', function (socket) {
   	}
   })
 
-  socket.on('act', function(data){
+  socket.on('act', data => {
   	let lastToAct = lastToActCalc(data.action);
   	if(lastToAct === 'game_done') { 
   		console.log("HEYO");
@@ -107,7 +109,7 @@ io.sockets.on('connection', function (socket) {
   	}
   })
 
-  socket.on('new_message', function(data) {
+  socket.on('new_message', data => {
   	messages.push({
   		name: data.user.name,
   		message: data.message
@@ -161,24 +163,6 @@ io.sockets.on('connection', function (socket) {
   }
 
 })
-}
-
-function nextPositionCalc(nextPosition, players) {
-	nextPosition++;
-	if(!players[nextPosition]) {
-		nextPosition = 0;
-	}
-	return nextPosition;
-}
-
-var is_user = function(user) {
-	var users_count = users.length;
-	for(var i = 0; i < users_count; i++) {
-		if(user == users[i]) {
-			return true;
-		}
-	}
-	return false;
 }
 
 // let filteredPlayers = players.map( onePlayer => {
