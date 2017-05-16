@@ -16,17 +16,8 @@ let nextPosition;
 let lastToAct;
 let round;
 let board = new Board();
-
-
-var is_user = function(user) {
-	var users_count = users.length;
-	for(var i = 0; i < users_count; i++) {
-		if(user == users[i]) {
-			return true;
-		}
-	}
-	return false;
-}
+let outCount = 1;
+let oneEnd = true;
 
 module.exports = function Route(app, server) {
 
@@ -73,10 +64,11 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('act', function(data){
   	let lastToAct = lastToActCalc(data.action);
-  	if(lastToAct === 'game_done') { return; }
+  	if(lastToAct === 'game_done') { 
+  		console.log("HEYO");
+  		return; }
   	else if(lastToAct === 'new_round') {
   		highestBet = 0;
-  		console.log('round', round);
   		io.emit('one_round', { 
 		nextPosition,
   		pot,
@@ -86,18 +78,24 @@ io.sockets.on('connection', function (socket) {
   		round
 	})
   	}
+  	console.log(data);
   	let user;
-  	for(let item of players) {
-  		if(data.user.name === item.name) {
-  			user = item;
-  		}
+  	if(data.action != 'out' && data.action != 'pass'){
+	  	for(let item of players) {
+	  		if(data.user.name === item.name) {
+	  			user = item;
+	  		}
+	  	}
+
   	}
-  	if(data.position === nextPosition) {
+  	if(data.position === nextPosition && oneEnd) {
+  		if(data.action !== 'out' && data.action != 'pass') {
+	  		pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet);
+	  		pot = pot_highestBet[0];
+	  		highestBet = pot_highestBet[1];
+	  		players = pot_highestBet[2];
+  		}
   		nextPosition = nextPositionCalc(nextPosition, players);
-  		pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet);
-  		pot = pot_highestBet[0];
-  		highestBet = pot_highestBet[1];
-  		players = pot_highestBet[2];
   		io.emit('one_round', {
   			nextPosition,
   			pot,
@@ -121,12 +119,18 @@ io.sockets.on('connection', function (socket) {
   })
 
   function newGame() {
-	io.emit('new_game', { message: 'The game has ended' })
+	io.emit('end_game', { message: 'The game has ended' })
   }
   
   function lastToActCalc(action) {
-	if(players.length === 1 || round === 4 && nextPosition == players.length - 1) {
-		newGame();
+  	if(action === 'out'){
+  		outCount++;
+  	}
+	if(outCount == players.length || round === 4 && nextPosition == players.length - 1) {
+		if(oneEnd){
+			newGame();
+			oneEnd = false;
+		}
 		return 'game_done';
 	}
 	if(action === 'raise') {
@@ -167,7 +171,15 @@ function nextPositionCalc(nextPosition, players) {
 	return nextPosition;
 }
 
-
+var is_user = function(user) {
+	var users_count = users.length;
+	for(var i = 0; i < users_count; i++) {
+		if(user == users[i]) {
+			return true;
+		}
+	}
+	return false;
+}
 
 // let filteredPlayers = players.map( onePlayer => {
 // 	onePlayer.hand = "You can't see this";

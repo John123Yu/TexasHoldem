@@ -9,6 +9,7 @@ const socket = io.connect();
 let user;
 let position;
 let blind = 0;
+let out = false;
 // 0 is small
 // 1 is big
 var new_user = function() {
@@ -60,27 +61,36 @@ socket.on('one_round', function(data) {
     console.log(data);
     var amount = 0;
     if(position === data.nextPosition){
+        if(out === true){
+            socket.emit('act', {
+                action: 'pass',
+            })
+            return;
+        }
         var action = prompt(`Highest bet is ${data.highestBet}. Pot size is ${data.pot}. check, call, fold, or raise?`)
         if(action === 'raise') {
             amount = prompt('how much?');
         } else if(action === 'call') {
             amount = data.highestBet - blind;
         }
+        if(action === 'fold') {
+            out = true;
+            socket.emit('act', {
+                action: 'out'
+            })
+        }
         socket.emit('act', {
             action,
             amount,
             user,
-            position
+            position,
         })
     }
 })
 
-socket.on('new_game', function(data) {
+socket.on('end_game', function(data) {
     alert(data.message);
 })
-
-
-
 
 function updateUser(data) {
     let playerPosition = -1;

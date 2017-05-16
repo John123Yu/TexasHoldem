@@ -20,10 +20,12 @@ module.exports = {
 		} else if (action === 'call') {
 			pot += Number(user.action('call', amount));
 			highestBet = amount;
-		} else {
-			players = players.filter( removePlayer => {
-				return removePlayer.name != user.name;
-			})
+		} else if (action ==='check') {
+			// continue
+		} else if (action === 'fold') {
+			// players = players.filter( removePlayer => {
+			// 	return removePlayer.name != user.name;
+			// })
 		}
 		return [pot, highestBet, players];
 	}
