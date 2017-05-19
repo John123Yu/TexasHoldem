@@ -8,6 +8,7 @@ const firstRound = gamePlay.firstRound;
 const nextPositionCalc = gamePlay.nextPositionCalc;
 const is_user = gamePlay.is_user;
 
+
 let users = [];
 let players = [];
 let messages = [];
@@ -31,7 +32,6 @@ const io = require('socket.io').listen(server);
 
 io.sockets.on('connection', socket => {
   console.log("WE ARE USING SOCKETS!");
-
   socket.on('page_load', data => {
   	if(is_user(data.name, users)) {
   		socket.emit('existing_user', {error: 'this user already exists'})

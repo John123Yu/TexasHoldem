@@ -2,9 +2,9 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const bodyParser = require('body-parser');
-var texasHoldem = require('./app/Play')
 
-app.use(express.static(path.join(__dirname, "./static")));
+console.log(__dirname);
+app.use(express.static(path.join(__dirname, "./src/static")));
 app.set('views', path.join(__dirname, './views'));
 app.set('view engine', 'ejs');
 

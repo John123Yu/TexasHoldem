@@ -4,7 +4,8 @@
   "description": "",
   "main": "gamePlay.js",
   "scripts": {
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server",
+    "bundle": "./node_modules/.bin/webpack"
   },
   "author": "",
   "license": "ISC",

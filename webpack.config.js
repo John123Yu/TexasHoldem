@@ -2,11 +2,11 @@ const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-	entry: './app',
+	entry: path.join(__dirname, 'client', 'app-client.js'),
 	output: {
-		filename: 'bundle.js',
-		path: path.resolve(__dirname, 'views')
-	},
+	    path: path.join(__dirname, 'src', 'static', 'js'),
+	    filename: 'bundle.js'
+	  },
 	module: {
 	  rules: [
 	    {
@@ -18,10 +18,5 @@ module.exports = {
 	      }],
 	    }
 	  ]
-	},
-	devServer: {
-		port: 3000,
-		contentBase : './views',
-		inline : true
 	}
 }
