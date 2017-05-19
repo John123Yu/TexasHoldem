@@ -9611,9 +9611,8 @@ $(document).ready(function () {
 		} else if (data.board.board.length === 5) {
 			Rendered.handleRiver(data.board.board);
 		}
-
-		var amount = 0;
 		if (position === data.nextPosition) {
+			var amount = 0;
 			if (out === true) {
 				socket.emit('act', {
 					action: 'pass'
@@ -9623,8 +9622,11 @@ $(document).ready(function () {
 			var action = prompt('Highest bet is ' + data.highestBet + '. Pot size is ' + data.pot + '. check, call, fold, or raise?');
 			if (action === 'raise') {
 				amount = prompt('how much?');
-			} else if (action === 'call') {
+			}
+			if (action === 'call') {
 				amount = data.highestBet - blind;
+			} else if (action === 'raise') {
+				amount -= blind;
 			}
 			if (action === 'fold') {
 				out = true;
@@ -9636,7 +9638,8 @@ $(document).ready(function () {
 				action: action,
 				amount: amount,
 				user: user,
-				position: position
+				position: position,
+				blind: blind
 			});
 		}
 	});
@@ -9754,7 +9757,6 @@ var Table = function (_Component) {
 	}, {
 		key: 'handleFlop',
 		value: function handleFlop(board) {
-			console.log(board);
 			this.setState({
 				burn1: "./images/cards-png/b2fv.png",
 				flop1: './images/cards-png/' + board[0].img,

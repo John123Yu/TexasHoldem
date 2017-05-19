@@ -64,9 +64,8 @@ socket.on('one_round', data => {
     } else if(data.board.board.length ===5){
 	    Rendered.handleRiver(data.board.board);
     }
-
-    var amount = 0;
     if(position === data.nextPosition){
+	    var amount = 0;
         if(out === true){
             socket.emit('act', {
                 action: 'pass',
@@ -76,8 +75,11 @@ socket.on('one_round', data => {
         var action = prompt(`Highest bet is ${data.highestBet}. Pot size is ${data.pot}. check, call, fold, or raise?`)
         if(action === 'raise') {
             amount = prompt('how much?');
-        } else if(action === 'call') {
+        } 
+        if(action === 'call') {
             amount = data.highestBet - blind;
+        } else if(action === 'raise') {
+        	amount -= blind;
         }
         if(action === 'fold') {
             out = true;
@@ -90,6 +92,7 @@ socket.on('one_round', data => {
             amount,
             user,
             position,
+            blind
         })
     }
 })

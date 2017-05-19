@@ -13,10 +13,10 @@ module.exports = {
 		}
 		return pot;
 	},
-	firstRound(user, players, action, amount, pot, highestBet) {
+	firstRound(user, players, action, amount, pot, highestBet, blind) {
 		if(action === 'raise') {
 			pot += Number(user.action('raise', amount));
-			highestBet = amount;
+			highestBet = amount + blind;
 		} else if (action === 'call') {
 			pot += Number(user.action('call', amount));
 			highestBet = amount;

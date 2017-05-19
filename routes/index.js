@@ -66,22 +66,8 @@ io.sockets.on('connection', socket => {
 
   socket.on('act', data => {
   	let lastToAct = lastToActCalc(data.action);
-  	if(lastToAct === 'game_done') { 
-  		console.log("HEYO");
-  		return; }
-  	else if(lastToAct === 'new_round') {
-  		highestBet = 0;
-  		io.emit('one_round', { 
-		nextPosition,
-  		pot,
-  		highestBet,
-  		players,
-  		board,
-  		round
-	})
-  	}
-  	console.log(data);
   	let user;
+    if(lastToAct === 'game_done') { return; }
   	if(data.action != 'out' && data.action != 'pass'){
 	  	for(let item of players) {
 	  		if(data.user.name === item.name) {
@@ -92,13 +78,19 @@ io.sockets.on('connection', socket => {
   	}
   	if(data.position === nextPosition && oneEnd) {
   		if(data.action !== 'out' && data.action != 'pass') {
-	  		pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet);
+	  		pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.blind);
 	  		pot = pot_highestBet[0];
 	  		highestBet = pot_highestBet[1];
 	  		players = pot_highestBet[2];
-  		}
-  		nextPosition = nextPositionCalc(nextPosition, players);
-  		io.emit('one_round', {
+      }
+      nextPosition = nextPositionCalc(nextPosition, players);
+      console.log(lastToAct);
+      if(lastToAct === 'new_round'){
+        highestBet = 0;
+        nextPosition = 0;
+        console.log("HEREO")
+      }
+      io.emit('one_round', {
   			nextPosition,
   			pot,
   			highestBet,
@@ -128,38 +120,36 @@ io.sockets.on('connection', socket => {
   	if(action === 'out'){
   		outCount++;
   	}
-	if(outCount == players.length || round === 4 && nextPosition == players.length - 1) {
-		if(oneEnd){
-			newGame();
-			oneEnd = false;
-		}
-		return 'game_done';
-	}
-	if(action === 'raise') {
-		return false;
-	}
-	if(round == 1) {
-		if(nextPosition == 1) {
-			boardAction(firstDeck);
-			return 'new_round';
-
-		}
-	} else {
-		if(nextPosition == players.length - 1) {
-			boardAction(firstDeck);
-			return 'new_round';
-		}
-	}
+  	if(outCount == players.length || round === 4 && nextPosition == players.length - 1) {
+  		if(oneEnd){
+  			newGame();
+  			oneEnd = false;
+  		}
+  		return 'game_done';
+  	}
+  	if(action === 'raise') {
+  		return false;
+  	}
+  	if(round == 1) {
+  		if(nextPosition == 1) {
+  			boardAction(firstDeck);
+  			return 'new_round';
+  		}
+  	} else {
+  		if(nextPosition == players.length - 1) {
+  			boardAction(firstDeck);
+  			return 'new_round';
+  		}
+  	}
   }
 
   function boardAction(deck) {
-	if(round === 1) {
-		board.flop(deck);
-	} else if(round > 1 && round < 4){
-		board.turnOrRiver(deck);
-	}
-	round++;
-	nextPosition = 0;
+  	if(round === 1) {
+  		board.flop(deck);
+  	} else if(round > 1 && round < 4){
+  		board.turnOrRiver(deck);
+  	}
+  	round++;
   }
 
 })
