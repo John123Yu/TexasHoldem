@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+import Table from './components/table';
+
 let user;
 let position;
 let blind = 0;
@@ -116,138 +118,8 @@ function updateUser(data) {
     return user;
 }
 })
-// class Greeter extends Component{
-	// constructor(props) {
-	// 	super(props);
-	//     this.state = {
-	//       name: props.name
-	//     };
-	// }
-// 	onButtonClick(e) {
-// 		e.preventDefault();
-// 		var name = this.refs.name.value;
-// 		this.setState({
-// 			name
-// 		})
-// 	}
-// 	render() {
-// 		var name = this.state.name;
-// 		return (
-// 			<div>
-// 				<h1>Hello {name}!</h1>
-				// <form onSubmit={this.onButtonClick.bind(this)}>
-				// 	<input type="text" ref="name" />
-				// 	<button>Set Name</button>
-				// </form>
-// 			</div>
-// 		)
-// 	}
-// };
-
-// Greeter.defaultProps = {
-// 	name: 'React'
-// }
-
-class Table extends Component{
-	constructor(props) {
-		super(props);
-	    this.state = {
-	      card1: "./images/cards-png/b2fv.png",
-	      card2: "./images/cards-png/b2fv.png",
-	      user: "",
-      	  burn1: "",
-		  burn2: "",
-		  burn3: "",
-		  flop1: "",
-		  flop2: "",
-		  flop3: "",
-		  turn: "",
-		  river: ""
-	    };
-	}
-	handleUser(user) {
-		this.setState({
-			card1: `./images/cards-png/${user.hand[0].img}`,
-			card2: `./images/cards-png/${user.hand[1].img}`
-		})
-	}
-	handleFlop(board){
-		this.setState({
-			burn1: "./images/cards-png/b2fv.png",
-			flop1: `./images/cards-png/${board[0].img}`,
-			flop2: `./images/cards-png/${board[1].img}`,
-			flop3: `./images/cards-png/${board[2].img}`
-		})
-	}
-	handleTurn(board){
-		this.setState({
-			burn2: "./images/cards-png/b2fv.png",
-			turn: `./images/cards-png/${board[3].img}` 
-		})
-	}
-	handleRiver(board){
-		this.setState({
-			burn3: "./images/cards-png/b2fv.png",
-			river: `./images/cards-png/${board[4].img}` 
-		})
-	}
-	render() {
-		return (
-			<div>
-				<Hand card1={this.state.card1} card2={this.state.card2} />
-				<Board burn1={this.state.burn1} burn2={this.state.burn2} burn3={this.state.burn3} flop1={this.state.flop1} flop2={this.state.flop2} flop3={this.state.flop3} turn={this.state.turn} river={this.state.river}/>
-			</div>
-		)
-	}
-}
-
-class Hand extends Component{
-	render() {
-		var card1 = this.props.card1;
-		var card2 = this.props.card2;
-		return (
-			<div>
-				<img src={card1}/>
-				<img src={card2}/>
-			</div>
-		)
-	}
-}
-
-class Board extends Component {
-	render() {
-		var burn1 = this.props.burn1,
-			burn2 = this.props.burn2,
-			burn3 = this.props.burn3,
-			flop1 = this.props.flop1,
-			flop2 = this.props.flop2,
-			flop3 = this.props.flop3,
-			turn = this.props.turn,
-			river = this.props.river
-		console.log("HEYOOOO");
-		console.log(burn1);
-		return (
-			<div>
-				<div className="burned">
-					<img src={burn1}/>
-					<img src={burn2}/>
-					<img src={burn3}/>
-				</div>
-				<div className="board">
-					<img src={flop1}/>
-					<img src={flop2}/>
-					<img src={flop3}/>
-					<img src={turn}/>
-					<img src={river}/>
-				</div>
-			</div>
-		)
-	}
-}
 
 var Rendered = ReactDOM.render(
 	<Table />,
 	document.getElementById("app")
 );
-
-console.log(Rendered);
