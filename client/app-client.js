@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import Table from './components/table';
 
+
 let user;
 let position;
 let blind = 0;

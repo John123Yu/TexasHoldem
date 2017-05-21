@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Board from './board';
 import Hand from './hand';
+import Options from './options';
 
 class Table extends Component{
 	constructor(props) {
@@ -16,7 +17,8 @@ class Table extends Component{
 		  flop2: "",
 		  flop3: "",
 		  turn: "",
-		  river: ""
+		  river: "",
+		  action: "check"
 	    };
 	}
 	handleUser(user) {
@@ -45,11 +47,21 @@ class Table extends Component{
 			river: `./images/cards-png/${board[4].img}` 
 		})
 	}
+	action(e) {
+		e.preventDefault();
+		console.log(this.state.action);
+	}
+	actionChange(e) {
+		this.setState({
+			action: e.target.value
+		})
+	}
 	render() {
 		return (
 			<div>
 				<Hand card1={this.state.card1} card2={this.state.card2} />
 				<Board burn1={this.state.burn1} burn2={this.state.burn2} burn3={this.state.burn3} flop1={this.state.flop1} flop2={this.state.flop2} flop3={this.state.flop3} turn={this.state.turn} river={this.state.river}/>
+				<Options action={this.action.bind(this)} change={this.actionChange.bind(this)}/>
 			</div>
 		)
 	}

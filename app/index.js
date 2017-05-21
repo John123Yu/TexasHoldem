@@ -1,8 +1,8 @@
-const gameSetup = require('../app/setup');
+const gameSetup = require('./setup');
 const Player = gameSetup.Player;
 let firstDeck = gameSetup.firstDeck;
 let Board = gameSetup.Board;
-const gamePlay = require('../app/gamePlay');
+const gamePlay = require('./gamePlay');
 const startGame = gamePlay.startGame;
 const firstRound = gamePlay.firstRound;
 const nextPositionCalc = gamePlay.nextPositionCalc;
@@ -31,7 +31,9 @@ app.get('/', (req, res) => {
 const io = require('socket.io').listen(server);
 
 io.sockets.on('connection', socket => {
+
   console.log("WE ARE USING SOCKETS!");
+  
   socket.on('page_load', data => {
   	if(is_user(data.name, users)) {
   		socket.emit('existing_user', {error: 'this user already exists'})
@@ -41,62 +43,6 @@ io.sockets.on('connection', socket => {
   		socket.emit('initiate_player', {
   			messages,
   			user: newPlayer
-  		})
-  	}
-  })
-
-  socket.on('start_action', data => {
-  	playersReady++;
-  	round = 1;
-  	if(playersReady === users.length){
-  		players = users;
-  		nextPosition = nextPositionCalc(1, players);
-  		pot = startGame(firstDeck, players, pot);
-  		highestBet = .2;
-	  	io.emit('one_round', { 
-	  		nextPosition,
-	  		pot,
-	  		highestBet,
-	  		players,
-	  		board,
-	  		round
-	  	});
-  	}
-  })
-
-  socket.on('act', data => {
-  	let lastToAct = lastToActCalc(data.action);
-  	let user;
-    if(lastToAct === 'game_done') { return; }
-  	if(data.action != 'out' && data.action != 'pass'){
-	  	for(let item of players) {
-	  		if(data.user.name === item.name) {
-	  			user = item;
-	  		}
-	  	}
-
-  	}
-  	if(data.position === nextPosition && oneEnd) {
-  		if(data.action !== 'out' && data.action != 'pass') {
-	  		pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.blind);
-	  		pot = pot_highestBet[0];
-	  		highestBet = pot_highestBet[1];
-	  		players = pot_highestBet[2];
-      }
-      nextPosition = nextPositionCalc(nextPosition, players);
-      console.log(lastToAct);
-      if(lastToAct === 'new_round'){
-        highestBet = 0;
-        nextPosition = 0;
-        console.log("HEREO")
-      }
-      io.emit('one_round', {
-  			nextPosition,
-  			pot,
-  			highestBet,
-  			players,
-  			board,
-  			round
   		})
   	}
   })
@@ -111,6 +57,63 @@ io.sockets.on('connection', socket => {
   		user: data.user.name
   	})
   })
+
+  socket.on('start_action', data => {
+    playersReady++;
+    round = 1;
+    if(playersReady === users.length){
+      players = users;
+      nextPosition = nextPositionCalc(1, players);
+      pot = startGame(firstDeck, players, pot);
+      highestBet = .2;
+      io.emit('one_round', { 
+        nextPosition,
+        pot,
+        highestBet,
+        players,
+        board,
+        round
+      });
+    }
+  })
+
+  socket.on('act', data => {
+    let lastToAct = lastToActCalc(data.action);
+    let user;
+    if(lastToAct === 'game_done') { return; }
+    if(data.action != 'out' && data.action != 'pass'){
+      for(let item of players) {
+        if(data.user.name === item.name) {
+          user = item;
+        }
+      }
+
+    }
+    if(data.position === nextPosition && oneEnd) {
+      if(data.action !== 'out' && data.action != 'pass') {
+        pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.blind);
+        pot = pot_highestBet[0];
+        highestBet = pot_highestBet[1];
+        players = pot_highestBet[2];
+      }
+      nextPosition = nextPositionCalc(nextPosition, players);
+      console.log(lastToAct);
+      if(lastToAct === 'new_round'){
+        highestBet = 0;
+        nextPosition = 0;
+        console.log("HEREO")
+      }
+      io.emit('one_round', {
+        nextPosition,
+        pot,
+        highestBet,
+        players,
+        board,
+        round
+      })
+    }
+  })
+
 
   function newGame() {
 	io.emit('end_game', { message: 'The game has ended' })

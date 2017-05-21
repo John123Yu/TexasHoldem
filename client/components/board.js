@@ -10,8 +10,6 @@ class Board extends Component {
 			flop3 = this.props.flop3,
 			turn = this.props.turn,
 			river = this.props.river
-		console.log("HEYOOOO");
-		console.log(burn1);
 		return (
 			<div>
 				<div className="burned">
