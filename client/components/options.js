@@ -3,7 +3,10 @@ import React, {Component} from 'react';
 class Options extends Component{
 	render() {
 		return (
-			<div>
+			<div className={this.props.shouldHide ? 'hidden' : ''} >
+				<div>
+					<p>{this.props.message}</p>
+				</div>
 				<form onSubmit={this.props.action}>
 					<div>
 					<label>Fold</label>
@@ -11,7 +14,7 @@ class Options extends Component{
 					</div>
 					<div>
 					<label>Check</label>
-					<input type="radio" name="action" value="check" defaultChecked={true} onChange={this.props.change}/>
+					<input type="radio" name="action" value="check" onChange={this.props.change}/>
 					</div>
 					<div>
 					<label>Call</label>

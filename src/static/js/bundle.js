@@ -9538,6 +9538,10 @@ var _options = __webpack_require__(86);
 
 var _options2 = _interopRequireDefault(_options);
 
+var _appClient = __webpack_require__(83);
+
+var _appClient2 = _interopRequireDefault(_appClient);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9545,6 +9549,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function actionMethod(action, callback) {
+	return action;
+}
 
 var Table = function (_Component) {
 	_inherits(Table, _Component);
@@ -9566,7 +9574,10 @@ var Table = function (_Component) {
 			flop3: "",
 			turn: "",
 			river: "",
-			action: "check"
+			action: "waiting",
+			officialAction: 'waiting',
+			shouldHide: true,
+			message: ""
 		};
 		return _this;
 	}
@@ -9606,10 +9617,20 @@ var Table = function (_Component) {
 			});
 		}
 	}, {
+		key: 'setOptions',
+		value: function setOptions(data) {
+			this.setState({
+				shouldHide: false,
+				message: 'Highest bet is ' + data.highestBet + '. Pot size is ' + Math.floor(data.pot * 100) / 100 + '.'
+			});
+		}
+	}, {
 		key: 'action',
 		value: function action(e) {
 			e.preventDefault();
-			console.log(this.state.action);
+			this.setState({
+				officialAction: this.state.action
+			});
 		}
 	}, {
 		key: 'actionChange',
@@ -9619,6 +9640,18 @@ var Table = function (_Component) {
 			});
 		}
 	}, {
+		key: 'returnAction',
+		value: function returnAction() {
+			var action = this.state.officialAction;
+			if (action != 'waiting') {
+				this.setState({
+					officialAction: 'waiting',
+					shouldHide: true
+				});
+			}
+			return action;
+		}
+	}, {
 		key: 'render',
 		value: function render() {
 			return _react2.default.createElement(
@@ -9626,7 +9659,7 @@ var Table = function (_Component) {
 				null,
 				_react2.default.createElement(_hand2.default, { card1: this.state.card1, card2: this.state.card2 }),
 				_react2.default.createElement(_board2.default, { burn1: this.state.burn1, burn2: this.state.burn2, burn3: this.state.burn3, flop1: this.state.flop1, flop2: this.state.flop2, flop3: this.state.flop3, turn: this.state.turn, river: this.state.river }),
-				_react2.default.createElement(_options2.default, { action: this.action.bind(this), change: this.actionChange.bind(this) })
+				_react2.default.createElement(_options2.default, { message: this.state.message, shouldHide: this.state.shouldHide, action: this.action.bind(this), change: this.actionChange.bind(this) })
 			);
 		}
 	}]);
@@ -9634,7 +9667,7 @@ var Table = function (_Component) {
 	return Table;
 }(_react.Component);
 
-module.exports = Table;
+module.exports = { Table: Table, actionMethod: actionMethod };
 
 /***/ }),
 /* 82 */
@@ -9662,8 +9695,6 @@ var _reactDom = __webpack_require__(82);
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _table = __webpack_require__(81);
-
-var _table2 = _interopRequireDefault(_table);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -9732,33 +9763,55 @@ $(document).ready(function () {
         }
         if (position === data.nextPosition) {
             var amount = 0;
+            var action;
             if (out === true) {
                 socket.emit('act', {
                     action: 'pass'
                 });
                 return;
             }
-            var action = prompt('Highest bet is ' + data.highestBet + '. Pot size is ' + data.pot + '. check, call, fold, or raise?');
-            if (action === 'raise') {
-                amount = prompt('how much?');
-            }
-            if (action === 'call') {
-                amount = data.highestBet - blind;
-            } else if (action === 'raise') {
-                amount -= blind;
-            }
-            if (action === 'fold') {
+            var startAction = new Promise(function (resolve, reject) {
+                Rendered.setOptions(data);
+                (function myLoop(i) {
+                    setTimeout(function () {
+                        action = Rendered.returnAction();
+                        if (action != 'waiting') {
+                            resolve();
+                        }
+                        if (--i) {
+                            myLoop(i);
+                        } else {
+                            reject();
+                        }
+                    }, 1000);
+                })(10);
+            }).then(function () {
+                if (action === 'raise') {
+                    amount = prompt('how much?');
+                }
+                if (action === 'call') {
+                    amount = data.highestBet - blind;
+                } else if (action === 'raise') {
+                    amount -= blind;
+                }
+                if (action === 'fold') {
+                    out = true;
+                    socket.emit('act', {
+                        action: 'out'
+                    });
+                }
+                socket.emit('act', {
+                    action: action,
+                    amount: amount,
+                    user: user,
+                    position: position,
+                    blind: blind
+                });
+            }).catch(function () {
                 out = true;
                 socket.emit('act', {
                     action: 'out'
                 });
-            }
-            socket.emit('act', {
-                action: action,
-                amount: amount,
-                user: user,
-                position: position,
-                blind: blind
             });
         }
     });
@@ -9810,7 +9863,7 @@ $(document).ready(function () {
     }
 });
 
-var Rendered = _reactDom2.default.render(_react2.default.createElement(_table2.default, null), document.getElementById("app"));
+var Rendered = _reactDom2.default.render(_react2.default.createElement(_table.Table, null), document.getElementById("app"));
 
 /***/ }),
 /* 84 */
@@ -9961,61 +10014,70 @@ var Options = function (_Component) {
 	}
 
 	_createClass(Options, [{
-		key: "render",
+		key: 'render',
 		value: function render() {
 			return _react2.default.createElement(
-				"div",
-				null,
+				'div',
+				{ className: this.props.shouldHide ? 'hidden' : '' },
 				_react2.default.createElement(
-					"form",
+					'div',
+					null,
+					_react2.default.createElement(
+						'p',
+						null,
+						this.props.message
+					)
+				),
+				_react2.default.createElement(
+					'form',
 					{ onSubmit: this.props.action },
 					_react2.default.createElement(
-						"div",
+						'div',
 						null,
 						_react2.default.createElement(
-							"label",
+							'label',
 							null,
-							"Fold"
+							'Fold'
 						),
-						_react2.default.createElement("input", { type: "radio", name: "action", value: "fold", onChange: this.props.change })
+						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'fold', onChange: this.props.change })
 					),
 					_react2.default.createElement(
-						"div",
+						'div',
 						null,
 						_react2.default.createElement(
-							"label",
+							'label',
 							null,
-							"Check"
+							'Check'
 						),
-						_react2.default.createElement("input", { type: "radio", name: "action", value: "check", defaultChecked: true, onChange: this.props.change })
+						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'check', onChange: this.props.change })
 					),
 					_react2.default.createElement(
-						"div",
+						'div',
 						null,
 						_react2.default.createElement(
-							"label",
+							'label',
 							null,
-							"Call"
+							'Call'
 						),
-						_react2.default.createElement("input", { type: "radio", name: "action", value: "call", onChange: this.props.change })
+						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'call', onChange: this.props.change })
 					),
 					_react2.default.createElement(
-						"div",
+						'div',
 						null,
 						_react2.default.createElement(
-							"label",
+							'label',
 							null,
-							"Raise"
+							'Raise'
 						),
-						_react2.default.createElement("input", { type: "radio", name: "action", value: "raise", onChange: this.props.change })
+						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'raise', onChange: this.props.change })
 					),
 					_react2.default.createElement(
-						"div",
+						'div',
 						null,
 						_react2.default.createElement(
-							"button",
-							{ type: "submit" },
-							"Submit"
+							'button',
+							{ type: 'submit' },
+							'Submit'
 						)
 					)
 				)

@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import Table from './components/table';
+import { Table, actionMethod } from './components/table';
 
 
 let user;
 let position;
 let blind = 0;
 let out = false;
-
 
 $(document).ready(function (){
 const socket = io.connect();
@@ -69,33 +68,53 @@ socket.on('one_round', data => {
     }
     if(position === data.nextPosition){
 	    var amount = 0;
+        var action;
         if(out === true){
             socket.emit('act', {
                 action: 'pass',
             })
             return;
         }
-        var action = prompt(`Highest bet is ${data.highestBet}. Pot size is ${data.pot}. check, call, fold, or raise?`)
-        if(action === 'raise') {
-            amount = prompt('how much?');
-        } 
-        if(action === 'call') {
-            amount = data.highestBet - blind;
-        } else if(action === 'raise') {
-        	amount -= blind;
-        }
-        if(action === 'fold') {
+        var startAction = new Promise((resolve, reject) => {
+            Rendered.setOptions(data);
+            (function myLoop (i) {          
+               setTimeout( () => {   
+                  action = Rendered.returnAction();
+                  if(action != 'waiting'){
+                    resolve();
+                  }          
+                  if(--i) { myLoop(i); } else {
+                    reject();
+                  }
+               }, 1000)
+            })(10); 
+        }).then( () => {
+            if(action === 'raise') {
+                amount = prompt('how much?');
+            } 
+            if(action === 'call') {
+                amount = data.highestBet - blind;
+            } else if(action === 'raise') {
+            	amount -= blind;
+            }
+            if(action === 'fold') {
+                out = true;
+                socket.emit('act', {
+                    action: 'out'
+                })
+            }
+            socket.emit('act', {
+                action,
+                amount,
+                user,
+                position,
+                blind
+            })
+        }).catch( () => {
             out = true;
             socket.emit('act', {
                 action: 'out'
             })
-        }
-        socket.emit('act', {
-            action,
-            amount,
-            user,
-            position,
-            blind
         })
     }
 })
@@ -118,9 +137,11 @@ function updateUser(data) {
     }
     return user;
 }
+
 })
 
 var Rendered = ReactDOM.render(
-	<Table />,
-	document.getElementById("app")
+    <Table />,
+    document.getElementById("app")
 );
+

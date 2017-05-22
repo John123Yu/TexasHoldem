@@ -101,7 +101,6 @@ io.sockets.on('connection', socket => {
       if(lastToAct === 'new_round'){
         highestBet = 0;
         nextPosition = 0;
-        console.log("HEREO")
       }
       io.emit('one_round', {
         nextPosition,
