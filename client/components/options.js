@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 class Options extends Component{
 	render() {
 		return (
-			<div className={this.props.shouldHide ? 'hidden' : ''} >
+			<div id="optionForm" className={this.props.shouldHide ? 'hidden' : ''} >
 				<div>
 					<p>{this.props.message}</p>
 				</div>
