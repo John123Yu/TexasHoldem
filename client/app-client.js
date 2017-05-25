@@ -7,7 +7,7 @@ import Login from './components/login';
 import Register from './components/register';
 
 
-ReactDOM.render(
+var rendered = ReactDOM.render(
     <Router history={hashHistory} >
         <Route path="/" component={Main}>
           <IndexRoute component={Table} />
@@ -18,3 +18,4 @@ ReactDOM.render(
     document.getElementById("app")
 );
 
+require('./poker-redux');

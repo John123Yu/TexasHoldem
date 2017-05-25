@@ -3,6 +3,7 @@ import Board from './board';
 import Hand from './hand';
 import Options from './options';
 import apple from '../app-client';
+import { store } from '../poker-redux';
 
 let user;
 let position;
@@ -55,11 +56,17 @@ $('#start_action').submit( function() {
     return false;
 });
 
+
 socket.on('one_round', data => {
     user = updateUser(data);
     console.log(user)
     console.log(data);
-    Rendered.handleUser(user);
+    store.store.dispatch({
+		type: 'HANDLE_USER',
+		card1: `./images/cards-png/${user.hand[0].img}`,
+		card2: `./images/cards-png/${user.hand[1].img}`
+	});
+
     if(data.board.board.length === 3){
 	    Rendered.handleFlop(data.board.board);
     } else if(data.board.board.length ===4){
