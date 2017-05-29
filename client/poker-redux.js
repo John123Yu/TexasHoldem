@@ -1,4 +1,5 @@
 var redux = require('redux');
+let playerCount = 0;
 
 var defaultTableState = {
   card1: "./images/cards-png/b2fv.png",
@@ -16,15 +17,7 @@ var defaultTableState = {
   officialAction: 'waiting',
   shouldShow: 0,
   message: undefined,
-  position0: true,
-  position1: false,
-  position2: false,
-  position3: false,
-  position4: false,
-  position5: false,
-  position6: false,
-  position7: false,
-  position8: false
+  players : []
 };
 
 var tableReducer = (state = defaultTableState, action) => {
@@ -43,6 +36,10 @@ var tableReducer = (state = defaultTableState, action) => {
 			return newState;
 		case 'OFFICIAL_ACTION':
 			newState.officialAction = state.action;
+			return newState;
+		case 'ADD_PLAYER':
+			newState.players.push({eval('action.player'): playerCount});
+			playerCount++;
 			return newState;
 		default:
 			return state;

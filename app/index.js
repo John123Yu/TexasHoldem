@@ -1,3 +1,4 @@
+var control = require('../server/controllers/controls.js');
 const gameSetup = require('./setup');
 const Player = gameSetup.Player;
 let firstDeck = gameSetup.firstDeck;
@@ -23,11 +24,19 @@ let outCount = 1;
 let oneEnd = true;
 
 module.exports = function Route(app, server) {
-
+// -----------------------------------------------------//
+// -----------------------------------------------------//
 app.get('/', (req, res) => {
  res.render("index");
 })
-
+app.post('/user',function(req, res){
+  control.create(req, res)
+});
+app.post('/login',function(req, res){
+  control.login(req, res)
+});
+// -----------------------------------------------------//
+// -----------------------------------------------------//
 const io = require('socket.io').listen(server);
 
 io.sockets.on('connection', socket => {
