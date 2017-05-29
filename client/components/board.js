@@ -1,15 +1,9 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux';
 
 class Board extends Component {
 	render() {
-		var burn1 = this.props.burn1,
-			burn2 = this.props.burn2,
-			burn3 = this.props.burn3,
-			flop1 = this.props.flop1,
-			flop2 = this.props.flop2,
-			flop3 = this.props.flop3,
-			turn = this.props.turn,
-			river = this.props.river
+		var { burn1, burn2, burn3, flop1, flop2, flop3, turn, river } = this.props;
 		return (
 			<div>
 				<div className="burned">
@@ -29,4 +23,17 @@ class Board extends Component {
 	}
 }
 
-module.exports = Board;
+module.exports = connect(
+	(state) => {
+		return {
+			burn1: state.burn1,
+			burn2: state.burn2,
+			burn3: state.burn3,
+			flop1: state.flop1,
+			flop2: state.flop2,
+			flop3: state.flop3,
+			turn: state.turn,
+			river: state.river
+		}
+	}
+)(Board);

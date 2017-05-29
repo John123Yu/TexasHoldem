@@ -1,4 +1,5 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
+import { connect } from 'react-redux';;
 // import { Table, actionMethod } from './table';
 import Nav from './nav';
 
@@ -13,4 +14,5 @@ class Main extends Component{
 	}
 }
 
-module.exports = Main;
+module.exports = connect()(Main);
+

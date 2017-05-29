@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux';
 
 class Hand extends Component{
 	render() {
-		var card1 = this.props.card1;
-		var card2 = this.props.card2;
+		var { card1, card2 } = this.props;
 		return (
 			<div>
 				<img src={card1}/>
@@ -13,4 +13,11 @@ class Hand extends Component{
 	}
 }
 
-module.exports = Hand;
+module.exports = connect(
+	(state) => {
+		return { 
+			card1: state.card1,
+			card2: state.card2
+		}
+	}
+)(Hand);
