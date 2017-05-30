@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 class Options extends Component{
 	render() {
 		var { message, shouldShow, action, change, dispatch, position } = this.props;
-		console.log(this.props);
 		return (
 			<div id="optionForm" className={ shouldShow === position ? '' : 'hidden'} >
 				<div>
@@ -44,7 +43,8 @@ module.exports = connect(
 		return {
 			message: state.message,
 			shouldShow: state.shouldShow,
-			action: state.action
+			action: state.action,
+			position: state.position
 		}
 	}
 )(Options);

@@ -1,9 +1,13 @@
 import { tableStore } from './poker-redux';
+import Cookies from 'universal-cookie';
+import { hashHistory } from 'react-router';
+const cookies = new Cookies();
 
 let user;
 let position;
 let blind = 0;
-let out = false;
+let out = false
+var cookie_user = cookies.get('user');
 
 const socket = io.connect();
 // 0 is small
@@ -14,10 +18,12 @@ var new_user = function(user) {
         name,
         buyin: 20
     });
-    tableStore.dispatch({
-        type: 'ADD_PLAYER',
-        player: `${user.first_name} ${user.last_name}`,
-    })
+}
+
+if(cookie_user) {
+    console.log(cookie_user);
+    new_user(cookie_user);
+    hashHistory.push('/');
 }
 
 socket.on('existing_user', data => {
@@ -57,21 +63,38 @@ $('#start_action').submit( function() {
 socket.on('one_round', data => {
     user = updateUser(data);
     // console.log(user)
-    // console.log(data);
+    console.log("DATA ", data);
     tableStore.dispatch({
-		type: 'DEAL_CARDS',
-		card1: `./images/cards-png/${user.hand[0].img}`,
-		card2: `./images/cards-png/${user.hand[1].img}`
-	});
+        type: 'SHOULD_SHOW',
+        nextPosition: data.nextPosition
+    })
+    if(data.round === 1) {
+        tableStore.dispatch({
+    		type: 'DEAL_CARDS',
+    		card1: `./images/cards-png/${user.hand[0].img}`,
+    		card2: `./images/cards-png/${user.hand[1].img}`
+    	});
+    }
     if(data.board.board.length === 3){
-	    console.log(data.board.board)
 	    tableStore.dispatch({
-	    	type: "FLOP"
-	    })
+	    	type: "FLOP",
+            flop1: "./images/cards-png/" + data.board.board[0].img,
+            flop2: "./images/cards-png/" + data.board.board[1].img,
+            flop3: "./images/cards-png/" + data.board.board[2].img,
+            burn1: "./images/cards-png/b2fv.png"
+        })
     } else if(data.board.board.length === 4){
-	    // Rendered.handleTurn(data.board.board);
+	    tableStore.dispatch({
+            type: "TURN",
+            turn: "./images/cards-png/" + data.board.board[3].img,
+            burn2: "./images/cards-png/b2fv.png"
+        })
     } else if(data.board.board.length === 5){
-	    // Rendered.handleRiver(data.board.board);
+	    tableStore.dispatch({
+            type: "RIVER",
+            river: "./images/cards-png/" + data.board.board[4].img,
+            burn3: "./images/cards-png/b2fv.png"
+        })
     }
     if(position === data.nextPosition){
 	    var amount = 0;
@@ -84,11 +107,11 @@ socket.on('one_round', data => {
         }
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
-        	shouldShow: position,
         	message: `Highest bet is ${data.highestBet}. Pot size is ${Math.floor(data.pot * 100) / 100}.`
         })
         $('#optionForm').on('submit', function() {
         	action = tableStore.getState().officialAction;
+            // socket.emit('should_show', { position });
         	if(action != 'waiting'){
         		// tableStore.dispatch({
         		// 	action: "RESET_ACTION",
@@ -136,6 +159,10 @@ function updateUser(data) {
             if(data.round > 1) { blind = 0; }
         }
     }
+    tableStore.dispatch({
+        type: 'ADD_PLAYER_POSITION',
+        position,
+    })
     return user;
 }
 

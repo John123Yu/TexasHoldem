@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-var { Route, Router, IndexRoute, hashHistory } = require('react-router');
+import { Route, Router, IndexRoute, hashHistory } from 'react-router';
 import Main from './components/main';
 import Table from './components/table';
 import Login from './components/login';
 import Register from './components/register';
 import { Provider } from 'react-redux';
 import { tableStore } from './poker-redux';
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 
 var rendered = ReactDOM.render(
 <Provider store={tableStore} >
@@ -20,3 +22,5 @@ var rendered = ReactDOM.render(
 </Provider>,
 document.getElementById("app")
 );
+
+module.exports = { cookies }

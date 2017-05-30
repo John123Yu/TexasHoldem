@@ -67,6 +67,10 @@ io.sockets.on('connection', socket => {
   	})
   })
 
+  // socket.on('should_show', data => {
+  //   io.emit('show_show_server', { position: data.position })
+  // })
+
   socket.on('start_action', data => {
     playersReady++;
     round = 1;

@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import { new_user } from '../table-logic';
+import Cookies from 'universal-cookie';
+import { hashHistory } from 'react-router';
+const cookies = new Cookies();
 
 class Login extends Component{
 	login(e) {
@@ -19,7 +22,9 @@ class Login extends Component{
 			  	$('#login_message').html(response.data.IncorrectPassword);
 			  } else if(response.data.user) {
 			  	$('#login_message').html("Successful Login");
+			  	cookies.set('user', response.data.user)
 			  	new_user(response.data.user);
+			  	hashHistory.push('/');
 			  }
 			}).catch(function (error) {
 			  console.log(error);
