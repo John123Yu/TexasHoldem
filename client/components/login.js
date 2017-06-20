@@ -21,10 +21,10 @@ class Login extends Component{
 			  } else if(response.data.IncorrectPassword) {
 			  	$('#login_message').html(response.data.IncorrectPassword);
 			  } else if(response.data.user) {
-			  	$('#login_message').html("Successful Login");
 			  	cookies.set('user', response.data.user)
 			  	new_user(response.data.user);
 			  	hashHistory.push('/');
+			  	$('#login_message').html("Successful Login");
 			  }
 			}).catch(function (error) {
 			  console.log(error);

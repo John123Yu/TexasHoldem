@@ -6,8 +6,11 @@ const cookies = new Cookies();
 let user;
 let position;
 let blind = 0;
-let out = false
-var cookie_user = cookies.get('user');
+let out = false;
+let cookie_user = cookies.get('user');
+let amount;
+let action;
+let highestBet;
 
 const socket = io.connect();
 // 0 is small
@@ -64,6 +67,8 @@ socket.on('one_round', data => {
     user = updateUser(data);
     // console.log(user)
     console.log("DATA ", data);
+    highestBet = data.highestBet;
+
     tableStore.dispatch({
         type: 'SHOULD_SHOW',
         nextPosition: data.nextPosition
@@ -97,7 +102,6 @@ socket.on('one_round', data => {
         })
     }
     if(position === data.nextPosition){
-	    var amount = 0;
         var action;
         if(out === true){
             socket.emit('act', {
@@ -107,41 +111,35 @@ socket.on('one_round', data => {
         }
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
-        	message: `Highest bet is ${data.highestBet}. Pot size is ${Math.floor(data.pot * 100) / 100}.`
-        })
-        $('#optionForm').on('submit', function() {
-        	action = tableStore.getState().officialAction;
-            // socket.emit('should_show', { position });
-        	if(action != 'waiting'){
-        		// tableStore.dispatch({
-        		// 	action: "RESET_ACTION",
-        		// 	officialAction: 'waiting'
-        		// })
-			}
-            if(action === 'raise') {
-                amount = prompt('how much?');
-            } 
-            if(action === 'call') {
-                amount = data.highestBet - blind;
-            } else if(action === 'raise') {
-                amount -= blind;
-            }
-            if(action === 'fold') {
-                out = true;
-                socket.emit('act', {
-                    action: 'out'
-                })
-            }
-            socket.emit('act', {
-                action,
-                amount,
-                user,
-                position,
-                blind
-            })
+        	message: `${data.highestBet - blind} to call. Pot size is ${Math.floor(data.pot * 100) / 100}.`
         })
     }
+
 })
+
+var decision = function(action) {
+    amount = 0;
+    if(action != 'waiting'){
+
+    }
+    if(action === 'raise') {
+        amount = prompt('how much?');
+    } 
+    if(action === 'raise') {
+        amount -= blind;
+    } else if(action === 'call') {
+        amount = highestBet - blind;
+    } else if(action === 'fold') {
+        out = true;
+        socket.emit('act', {
+            action: 'out'
+        })
+    } else if(action === 'check') {
+
+    }
+    // console.log('amount', amount, " action ", action, " user ", user, " position ", position, " blind ", blind);
+    socket.emit('act', { action, amount, user, position, blind })
+}       
 
 socket.on('end_game', data => {
     alert(data.message);
@@ -167,5 +165,6 @@ function updateUser(data) {
 }
 
 module.exports = {
-    new_user
+    new_user,
+    decision
 }

@@ -91,13 +91,14 @@ io.sockets.on('connection', socket => {
   })
 
   socket.on('act', data => {
+    console.log('heyo');
     let lastToAct = lastToActCalc(data.action);
     let user;
     if(lastToAct === 'game_done') { return; }
     if(data.action != 'out' && data.action != 'pass'){
-      for(let item of players) {
-        if(data.user.name === item.name) {
-          user = item;
+      for(let player of players) {
+        if(data.user.name === player.name) {
+          user = player;
         }
       }
 
@@ -110,7 +111,7 @@ io.sockets.on('connection', socket => {
         players = pot_highestBet[2];
       }
       nextPosition = nextPositionCalc(nextPosition, players);
-      console.log(lastToAct);
+      // console.log(lastToAct);
       if(lastToAct === 'new_round'){
         highestBet = 0;
         nextPosition = 0;

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
+import { decision } from '../table-logic'
 
 class Options extends Component{
 	render() {
@@ -11,7 +12,8 @@ class Options extends Component{
 				</div>
 				<form onSubmit={ (e) => {
 					e.preventDefault();
-					dispatch({ type: "OFFICIAL_ACTION"});
+					decision(this.props.action);
+					// dispatch({ type: "OFFICIAL_ACTION"});
 				} }>
 					<div>
 					<label>Fold</label>

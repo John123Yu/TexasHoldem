@@ -49,7 +49,7 @@ var tableReducer = (state = defaultTableState, action) => {
 			return newState;
 		case 'TURN':
 			newState.burn2 = action.burn2;
-			newstate.turn = action.turn;
+			newState.turn = action.turn;
 			return newState;
 		case 'RIVER':
 			newState.burn3 = action.burn3;
@@ -64,7 +64,7 @@ var tableStore = redux.createStore(tableReducer);
 
 tableStore.subscribe( () => {
 	var state = tableStore.getState();
-	console.log("state-", state);
+	// console.log("state-", state);
 })
 
 module.exports = { tableStore }

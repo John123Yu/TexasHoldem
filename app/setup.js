@@ -71,15 +71,7 @@ class Player {
 		return this;
 	}
 	action(action, amount = 0) {
-		if (action == 'raise') {
-			if(amount > this.chipCount) {
-				amount = this.chipCount;
-				this.chipCount = 0;
-			} else {
-				this.chipCount -= amount;
-			}
-			return amount;
-		} else if (action == 'call') {
+		if(action == 'raise' || action == 'call') {
 			if(amount > this.chipCount) {
 				amount = this.chipCount;
 				this.chipCount = 0;
