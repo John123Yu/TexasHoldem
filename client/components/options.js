@@ -4,7 +4,7 @@ import { decision } from '../table-logic'
 
 class Options extends Component{
 	render() {
-		var { message, shouldShow, action, change, dispatch, position } = this.props;
+		var { message, shouldShow, action, change, dispatch, position, canCheck } = this.props;
 		return (
 			<div id="optionForm" className={ shouldShow === position ? '' : 'hidden'} >
 				<div>
@@ -19,11 +19,11 @@ class Options extends Component{
 					<label>Fold</label>
 					<input type="radio" name="action" value="fold" onChange={ (e) => dispatch({ type: "CHANGE_ACTION", action: e.target.value }) }/>
 					</div>
-					<div>
+					<div className={ canCheck ? '' : 'hidden'}>
 					<label>Check</label>
 					<input type="radio" name="action" value="check" onChange={ (e) => dispatch({ type: "CHANGE_ACTION", action: e.target.value }) }/>
 					</div>
-					<div>
+					<div className={ canCheck ? 'hidden' : ''}>
 					<label>Call</label>
 					<input type="radio" name="action"  value="call" onChange={ (e) => dispatch({ type: "CHANGE_ACTION", action: e.target.value }) }/>
 					</div>
@@ -46,7 +46,8 @@ module.exports = connect(
 			message: state.message,
 			shouldShow: state.shouldShow,
 			action: state.action,
-			position: state.position
+			position: state.position,
+			canCheck: state.canCheck
 		}
 	}
 )(Options);

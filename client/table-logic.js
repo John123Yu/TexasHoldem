@@ -5,12 +5,13 @@ const cookies = new Cookies();
 
 let user;
 let position;
-let blind = 0;
+let investment;
 let out = false;
 let cookie_user = cookies.get('user');
 let amount;
 let action;
 let highestBet;
+let initializeBlinds = true;
 
 const socket = io.connect();
 // 0 is small
@@ -109,9 +110,11 @@ socket.on('one_round', data => {
             })
             return;
         }
+        let canCheck = (data.highestBet - investment === 0)
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
-        	message: `${data.highestBet - blind} to call. Pot size is ${Math.floor(data.pot * 100) / 100}.`
+        	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment}`,
+            canCheck
         })
     }
 
@@ -119,26 +122,28 @@ socket.on('one_round', data => {
 
 var decision = function(action) {
     amount = 0;
+    let tempInvestment = investment;
     if(action != 'waiting'){
-
     }
     if(action === 'raise') {
         amount = prompt('how much?');
+        investment = amount;
     } 
     if(action === 'raise') {
-        amount -= blind;
+        amount -= tempInvestment;
     } else if(action === 'call') {
-        amount = highestBet - blind;
+        amount = highestBet - tempInvestment;
+        investment = highestBet
     } else if(action === 'fold') {
         out = true;
         socket.emit('act', {
-            action: 'out'
+            action: 'fold'
         })
     } else if(action === 'check') {
 
     }
-    // console.log('amount', amount, " action ", action, " user ", user, " position ", position, " blind ", blind);
-    socket.emit('act', { action, amount, user, position, blind })
+    // console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
+    socket.emit('act', { action, amount, user, position, investment })
 }       
 
 socket.on('end_game', data => {
@@ -152,9 +157,12 @@ function updateUser(data) {
         if(item.name === user.name) {
             user = item;
             position = playerPosition;
-            if(position === 0) { blind = .1; }
-            else if(position === 1){ blind = .2; }
-            if(data.round > 1) { blind = 0; }
+            console.log("data-", data)
+            if(initializeBlinds){
+                if(position === 0) { investment = .1; }
+                else if(position === 1){ investment = .2; }
+                initializeBlinds = false;
+            }
         }
     }
     tableStore.dispatch({

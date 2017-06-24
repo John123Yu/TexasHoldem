@@ -95,7 +95,7 @@ io.sockets.on('connection', socket => {
     let lastToAct = lastToActCalc(data.action);
     let user;
     if(lastToAct === 'game_done') { return; }
-    if(data.action != 'out' && data.action != 'pass'){
+    if(data.action != 'fold' && data.action != 'pass'){
       for(let player of players) {
         if(data.user.name === player.name) {
           user = player;
@@ -104,8 +104,8 @@ io.sockets.on('connection', socket => {
 
     }
     if(data.position === nextPosition && oneEnd) {
-      if(data.action !== 'out' && data.action != 'pass') {
-        pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.blind);
+      if(data.action !== 'fold' && data.action != 'pass') {
+        pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.investment);
         pot = pot_highestBet[0];
         highestBet = pot_highestBet[1];
         players = pot_highestBet[2];
@@ -133,7 +133,7 @@ io.sockets.on('connection', socket => {
   }
   
   function lastToActCalc(action) {
-  	if(action === 'out'){
+  	if(action === 'fold'){
   		outCount++;
   	}
   	if(outCount == players.length || round === 4 && nextPosition == players.length - 1) {

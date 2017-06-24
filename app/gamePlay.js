@@ -13,12 +13,12 @@ module.exports = {
 		}
 		return pot;
 	},
-	firstRound(user, players, action, amount, pot, highestBet, blind) {
+	firstRound(user, players, action, amount, pot, highestBet, investment) {
 		if(action === 'raise' || action === 'call') {
 			pot += Number(user.action('raise', amount));
 			// console.log("amount ", amount)
-			// console.log("blind ", blind)
-			highestBet = amount + blind;
+			// console.log("investment ", investment)
+			highestBet = investment;
 		} else if (action ==='check') {
 			// continue
 		} else if (action === 'fold') {

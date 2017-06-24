@@ -16,7 +16,8 @@ var defaultTableState = {
   officialAction: 'waiting',
   shouldShow: 1000,
   message: undefined,
-  position: undefined
+  position: undefined,
+  canCheck: false
 };
 
 var tableReducer = (state = defaultTableState, action) => {
@@ -28,6 +29,7 @@ var tableReducer = (state = defaultTableState, action) => {
 			return newState;
 		case 'SHOW_OPTIONS':
 			newState.message = action.message;
+			newState.canCheck = action.canCheck;
 			return newState;
 		case 'CHANGE_ACTION':
 			newState.action = action.action;
@@ -64,7 +66,7 @@ var tableStore = redux.createStore(tableReducer);
 
 tableStore.subscribe( () => {
 	var state = tableStore.getState();
-	// console.log("state-", state);
+	console.log("state-", state);
 })
 
 module.exports = { tableStore }

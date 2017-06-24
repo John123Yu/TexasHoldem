@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 
 var User = mongoose.model('User');
 
-var server = app.listen(3000, function() {
+var server = app.listen(8000, function() {
  console.log("listening on port 8000");
 })
 
