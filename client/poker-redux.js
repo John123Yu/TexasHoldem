@@ -66,7 +66,7 @@ var tableStore = redux.createStore(tableReducer);
 
 tableStore.subscribe( () => {
 	var state = tableStore.getState();
-	console.log("state-", state);
+	// console.log("state-", state);
 })
 
 module.exports = { tableStore }

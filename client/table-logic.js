@@ -53,7 +53,7 @@ $('#new_message').submit( () => {
     return false;
 });
 socket.on('post_new_message', data => {
-    console.log(user)
+    // console.log(user)
     $('#message_board').append("<p>" + data.user + ": " + data.new_message + "</p>");
 });
 
@@ -65,9 +65,11 @@ $('#start_action').submit( function() {
 
 
 socket.on('one_round', data => {
+    if(data.newRound)
+      investment = 0;
     user = updateUser(data);
     // console.log(user)
-    console.log("DATA ", data);
+    // console.log("DATA ", data);
     highestBet = data.highestBet;
 
     tableStore.dispatch({
@@ -113,7 +115,7 @@ socket.on('one_round', data => {
         let canCheck = (data.highestBet - investment === 0)
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
-        	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment}`,
+        	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round.`,
             canCheck
         })
     }
@@ -133,7 +135,7 @@ var decision = function(action) {
         amount -= tempInvestment;
     } else if(action === 'call') {
         amount = highestBet - tempInvestment;
-        investment = highestBet
+        investment = highestBet;
     } else if(action === 'fold') {
         out = true;
         socket.emit('act', {
@@ -157,7 +159,6 @@ function updateUser(data) {
         if(item.name === user.name) {
             user = item;
             position = playerPosition;
-            console.log("data-", data)
             if(initializeBlinds){
                 if(position === 0) { investment = .1; }
                 else if(position === 1){ investment = .2; }

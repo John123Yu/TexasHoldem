@@ -6289,7 +6289,7 @@ var tableStore = redux.createStore(tableReducer);
 
 tableStore.subscribe(function () {
 	var state = tableStore.getState();
-	console.log("state-", state);
+	// console.log("state-", state);
 });
 
 module.exports = { tableStore: tableStore };
@@ -9572,7 +9572,7 @@ $('#new_message').submit(function () {
     return false;
 });
 socket.on('post_new_message', function (data) {
-    console.log(user);
+    // console.log(user)
     $('#message_board').append("<p>" + data.user + ": " + data.new_message + "</p>");
 });
 
@@ -9583,9 +9583,10 @@ $('#start_action').submit(function () {
 });
 
 socket.on('one_round', function (data) {
+    if (data.newRound) investment = 0;
     user = updateUser(data);
     // console.log(user)
-    console.log("DATA ", data);
+    // console.log("DATA ", data);
     highestBet = data.highestBet;
 
     _pokerRedux.tableStore.dispatch({
@@ -9631,7 +9632,7 @@ socket.on('one_round', function (data) {
         var canCheck = data.highestBet - investment === 0;
         _pokerRedux.tableStore.dispatch({
             type: "SHOW_OPTIONS",
-            message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment,
+            message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round.',
             canCheck: canCheck
         });
     }
@@ -9678,7 +9679,6 @@ function updateUser(data) {
             if (item.name === user.name) {
                 user = item;
                 position = playerPosition;
-                console.log("data-", data);
                 if (initializeBlinds) {
                     if (position === 0) {
                         investment = .1;
@@ -15616,6 +15616,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var tableStyle = {
+	display: 'inline-block'
+};
+
 var Table = function (_Component) {
 	_inherits(Table, _Component);
 
@@ -15630,7 +15634,7 @@ var Table = function (_Component) {
 		value: function render() {
 			return _react2.default.createElement(
 				'div',
-				null,
+				{ style: tableStyle },
 				_react2.default.createElement(
 					'h1',
 					null,
@@ -16725,6 +16729,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var navStyle = {
+	diplay: 'inline-block'
+};
+
 var Nav = function (_Component) {
 	_inherits(Nav, _Component);
 
@@ -16739,7 +16747,7 @@ var Nav = function (_Component) {
 		value: function render() {
 			return _react2.default.createElement(
 				'div',
-				null,
+				{ style: navStyle },
 				_react2.default.createElement(
 					'ul',
 					null,

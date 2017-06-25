@@ -5,10 +5,14 @@ import Options from './options';
 import { tableStore } from '../poker-redux';
 import { connect } from 'react-redux';
 
+const tableStyle = {
+	display: 'inline-block'
+}
+
 class Table extends Component{
 	render() {
 		return (
-			<div>
+			<div style={tableStyle}>
 				<h1>Table</h1>
 				<Hand />
 				<Board />

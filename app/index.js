@@ -22,6 +22,8 @@ let round;
 let board = new Board();
 let outCount = 1;
 let oneEnd = true;
+let newRound;
+let lastRaise;
 
 module.exports = function Route(app, server) {
 // -----------------------------------------------------//
@@ -91,7 +93,6 @@ io.sockets.on('connection', socket => {
   })
 
   socket.on('act', data => {
-    console.log('heyo');
     let lastToAct = lastToActCalc(data.action);
     let user;
     if(lastToAct === 'game_done') { return; }
@@ -101,7 +102,6 @@ io.sockets.on('connection', socket => {
           user = player;
         }
       }
-
     }
     if(data.position === nextPosition && oneEnd) {
       if(data.action !== 'fold' && data.action != 'pass') {
@@ -111,18 +111,21 @@ io.sockets.on('connection', socket => {
         players = pot_highestBet[2];
       }
       nextPosition = nextPositionCalc(nextPosition, players);
-      // console.log(lastToAct);
-      if(lastToAct === 'new_round'){
+      if(lastToAct === 'new_round' || lastRaise === nextPosition){
         highestBet = 0;
         nextPosition = 0;
-      }
+        newRound = true;
+        lastRaise = null;
+        boardAction(firstDeck);
+      } 
       io.emit('one_round', {
         nextPosition,
         pot,
         highestBet,
         players,
         board,
-        round
+        round,
+        newRound
       })
     }
   })
@@ -144,16 +147,15 @@ io.sockets.on('connection', socket => {
   		return 'game_done';
   	}
   	if(action === 'raise') {
+      lastRaise = nextPosition;
   		return false;
   	}
   	if(round == 1) {
   		if(nextPosition == 1) {
-  			boardAction(firstDeck);
   			return 'new_round';
   		}
   	} else {
   		if(nextPosition == players.length - 1) {
-  			boardAction(firstDeck);
   			return 'new_round';
   		}
   	}
