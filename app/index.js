@@ -9,7 +9,6 @@ const firstRound = gamePlay.firstRound;
 const nextPositionCalc = gamePlay.nextPositionCalc;
 const is_user = gamePlay.is_user;
 
-
 let users = [];
 let players = [];
 let messages = [];
@@ -69,10 +68,6 @@ io.sockets.on('connection', socket => {
   	})
   })
 
-  // socket.on('should_show', data => {
-  //   io.emit('show_show_server', { position: data.position })
-  // })
-
   socket.on('start_action', data => {
     playersReady++;
     round = 1;
@@ -93,19 +88,20 @@ io.sockets.on('connection', socket => {
   })
 
   socket.on('act', data => {
+    console.log("DATA ", data);
     let lastToAct = lastToActCalc(data.action);
-    let user;
     if(lastToAct === 'game_done') { return; }
-    if(data.action != 'fold' && data.action != 'pass'){
-      for(let player of players) {
-        if(data.user.name === player.name) {
-          user = player;
-        }
-      }
-    }
-    if(data.position === nextPosition && oneEnd) {
+    let user = players.filter(function(player){
+      return player.name === data.user.name;
+    })
+    console.log(user);
+    console.log("data position", data.position);
+    console.log("next position", nextPosition);
+    console.log("ONEEND", oneEnd)
+    if(data.position == nextPosition && oneEnd) {
+      console.log("HEYO")
       if(data.action !== 'fold' && data.action != 'pass') {
-        pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.investment);
+        pot_highestBet = firstRound( user[0], players, data.action, data.amount, pot, highestBet, data.investment);
         pot = pot_highestBet[0];
         highestBet = pot_highestBet[1];
         players = pot_highestBet[2];
@@ -132,17 +128,33 @@ io.sockets.on('connection', socket => {
 
 
   function newGame() {
-	io.emit('end_game', { message: 'The game has ended' })
+    firstDeck.reset();
+    playersReady = 0;
+    board = new Board();
+    pot = 0;
+    highestBet = 0;
+    outCount = 1;
+    oneEnd = true;
+    lastRaise = null;
+    nextPosition = 0;
+    for(let player of players) {
+      player.hand = [];
+    }
+    io.emit('end_game', { 
+      message: 'The game has ended',
+      round: 1,
+      players
+    });
   }
   
   function lastToActCalc(action) {
-  	if(action === 'fold'){
-  		outCount++;
-  	}
+    console.log("outCount", outCount);
+    if(action === 'fold') { outCount++; }
   	if(outCount == players.length || round === 4 && nextPosition == players.length - 1) {
+      console.log("GAME DONE")
   		if(oneEnd){
-  			newGame();
   			oneEnd = false;
+        newGame();
   		}
   		return 'game_done';
   	}

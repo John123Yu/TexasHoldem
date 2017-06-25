@@ -115,7 +115,7 @@ socket.on('one_round', data => {
         let canCheck = (data.highestBet - investment === 0)
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
-        	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round.`,
+        	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round. You have ${user.chipCount} left.`,
             canCheck
         })
     }
@@ -138,18 +138,39 @@ var decision = function(action) {
         investment = highestBet;
     } else if(action === 'fold') {
         out = true;
-        socket.emit('act', {
-            action: 'fold'
-        })
+        // socket.emit('act', {
+        //     action: 'fold'
+        // })
     } else if(action === 'check') {
 
     }
-    // console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
+    console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
     socket.emit('act', { action, amount, user, position, investment })
 }       
 
 socket.on('end_game', data => {
-    alert(data.message);
+    investment = 0;
+    out = false;
+    amount = 0;
+    highestBet = 0
+    initializeBlinds = true;
+    user = updateUser(data);
+
+    socket.emit('start_action', { user })
+    tableStore.dispatch({
+        type: 'RESET',
+        card1: "./images/cards-png/b2fv.png",
+        card2: "./images/cards-png/b2fv.png",
+        burn1: undefined,
+        burn2: undefined,
+        burn3: undefined,
+        flop1: undefined,
+        flop2: undefined,
+        flop3: undefined,
+        turn: undefined,
+        river: undefined,
+        message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round. You have ${user.chipCount} left.`
+    });
 })
 
 function updateUser(data) {

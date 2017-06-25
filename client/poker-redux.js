@@ -57,6 +57,19 @@ var tableReducer = (state = defaultTableState, action) => {
 			newState.burn3 = action.burn3;
 			newState.river = action.river;
 			return newState;
+		case 'RESET':
+			newState.card1 = action.card1;
+			newState.card2 = action.card2;
+			newState.burn1 = action.burn1;
+			newState.burn2 = action.burn2;
+			newState.burn3 = action.burn3;
+			newState.flop1 = action.flop1;
+			newState.flop2 = action.flop2;
+			newState.flop3 = action.flop3;
+			newState.turn = action.turn;
+			newState.river = action.river;
+			newState.message = action.message;
+			return newState;
 		default:
 			return state;
 	}

@@ -6280,6 +6280,19 @@ var tableReducer = function tableReducer() {
 			newState.burn3 = action.burn3;
 			newState.river = action.river;
 			return newState;
+		case 'RESET':
+			newState.card1 = action.card1;
+			newState.card2 = action.card2;
+			newState.burn1 = action.burn1;
+			newState.burn2 = action.burn2;
+			newState.burn3 = action.burn3;
+			newState.flop1 = action.flop1;
+			newState.flop2 = action.flop2;
+			newState.flop3 = action.flop3;
+			newState.turn = action.turn;
+			newState.river = action.river;
+			newState.message = action.message;
+			return newState;
 		default:
 			return state;
 	}
@@ -9632,7 +9645,7 @@ socket.on('one_round', function (data) {
         var canCheck = data.highestBet - investment === 0;
         _pokerRedux.tableStore.dispatch({
             type: "SHOW_OPTIONS",
-            message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round.',
+            message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round. You have ' + user.chipCount + ' left.',
             canCheck: canCheck
         });
     }
@@ -9653,16 +9666,37 @@ var decision = function decision(action) {
         investment = highestBet;
     } else if (action === 'fold') {
         out = true;
-        socket.emit('act', {
-            action: 'fold'
-        });
+        // socket.emit('act', {
+        //     action: 'fold'
+        // })
     } else if (action === 'check') {}
-    // console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
+    console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
     socket.emit('act', { action: action, amount: amount, user: user, position: position, investment: investment });
 };
 
 socket.on('end_game', function (data) {
-    alert(data.message);
+    investment = 0;
+    out = false;
+    amount = 0;
+    highestBet = 0;
+    initializeBlinds = true;
+    user = updateUser(data);
+
+    socket.emit('start_action', { user: user });
+    _pokerRedux.tableStore.dispatch({
+        type: 'RESET',
+        card1: "./images/cards-png/b2fv.png",
+        card2: "./images/cards-png/b2fv.png",
+        burn1: undefined,
+        burn2: undefined,
+        burn3: undefined,
+        flop1: undefined,
+        flop2: undefined,
+        flop3: undefined,
+        turn: undefined,
+        river: undefined,
+        message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round. You have ' + user.chipCount + ' left.'
+    });
 });
 
 function updateUser(data) {
