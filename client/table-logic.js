@@ -12,6 +12,7 @@ let amount;
 let action;
 let highestBet;
 let initializeBlinds = true;
+let dealOnce = true;
 
 const socket = io.connect();
 // 0 is small
@@ -65,8 +66,7 @@ $('#start_action').submit( function() {
 
 
 socket.on('one_round', data => {
-    if(data.newRound)
-      investment = 0;
+    if(data.newRound) {investment = 0;}
     user = updateUser(data);
     // console.log(user)
     // console.log("DATA ", data);
@@ -76,7 +76,8 @@ socket.on('one_round', data => {
         type: 'SHOULD_SHOW',
         nextPosition: data.nextPosition
     })
-    if(data.round === 1) {
+    if(data.round === 1 && dealOnce) {
+        dealOnce = false;
         tableStore.dispatch({
     		type: 'DEAL_CARDS',
     		card1: `./images/cards-png/${user.hand[0].img}`,
@@ -137,7 +138,11 @@ var decision = function(action) {
         amount = highestBet - tempInvestment;
         investment = highestBet;
     } else if(action === 'fold') {
-
+        tableStore.dispatch({
+            type: 'FOLD',
+            card1: './images/cards-png/b2fv.png',
+            card2: './images/cards-png/b2fv.png'
+        });
     } else if(action === 'check') {
 
     }
@@ -152,7 +157,7 @@ socket.on('end_game', data => {
     highestBet = 0
     initializeBlinds = true;
     user = updateUser(data);
-
+    dealOnce = true;
     socket.emit('start_action', { user })
     tableStore.dispatch({
         type: 'RESET',

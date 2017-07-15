@@ -22,7 +22,7 @@ let board = new Board();
 let outCount = 1;
 let oneEnd = true;
 let newRound;
-let lastRaise;
+let lastRaise = null;
 
 module.exports = function Route(app, server) {
 // -----------------------------------------------------//
@@ -96,8 +96,6 @@ io.sockets.on('connection', socket => {
     })[0]
     if(data.action === 'fold') {
       user.folded = true;
-      user.hand[0].img = 'b2fv.png';
-      user.hand[1].img = 'b2fv.png';
     }
     console.log("ONEEND", oneEnd)
     if(data.position == nextPosition && oneEnd) {
@@ -111,7 +109,7 @@ io.sockets.on('connection', socket => {
       nextPosition = nextPositionCalc(nextPosition, players);
       if(lastToAct === 'new_round' || lastRaise === nextPosition){
         highestBet = 0;
-        nextPosition = nextPositionCalc(0, players);
+        nextPosition = nextPositionCalc(players.length - 1, players);
         newRound = true;
         lastRaise = null;
         boardAction(firstDeck);
@@ -138,9 +136,18 @@ io.sockets.on('connection', socket => {
     outCount = 1;
     oneEnd = true;
     lastRaise = null;
-    nextPosition = 0;
+    // let players = players.map( onePlayer => {
+    //   onePlayer.folded = false;
+    //   return onePlayer;
+    // })
+    if(players.length > 2)
+      nextPosition = 2;
+    else
+      nextPosition = 0;
     for(let player of players) {
       player.hand = [];
+      player.chipCount = 20;
+      player.folded = false;
     }
     io.emit('end_game', { 
       message: 'The game has ended',
@@ -150,9 +157,10 @@ io.sockets.on('connection', socket => {
   }
   
   function lastToActCalc(action) {
+    newRound = false;
     console.log("outCount", outCount);
     if(action === 'fold') { outCount++; }
-  	if(outCount == players.length || round === 4 && nextPosition == players.length - 1) {
+  	if(outCount == players.length || round === 4 && nextPosition == players.length - outCount) {
       console.log("GAME DONE")
   		if(oneEnd){
   			oneEnd = false;
@@ -164,14 +172,14 @@ io.sockets.on('connection', socket => {
       lastRaise = nextPosition;
   		return false;
   	}
+    if(lastRaise != null)
+      return false;
   	if(round == 1) {
-  		if(nextPosition == 1) {
-  			return 'new_round';
-  		}
-  	} else {
-  		if(nextPosition == players.length - 1) {
-  			return 'new_round';
-  		}
+  		if(nextPosition == 1)
+        return 'new_round';
+    } else {
+      if(nextPosition == players.length - outCount )
+        return 'new_round';
   	}
   }
 

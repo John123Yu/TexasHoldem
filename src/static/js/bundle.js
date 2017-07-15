@@ -9548,6 +9548,7 @@ var amount = void 0;
 var action = void 0;
 var highestBet = void 0;
 var initializeBlinds = true;
+var dealOnce = true;
 
 var socket = io.connect();
 // 0 is small
@@ -9600,7 +9601,9 @@ $('#start_action').submit(function () {
 });
 
 socket.on('one_round', function (data) {
-    if (data.newRound) investment = 0;
+    if (data.newRound) {
+        investment = 0;
+    }
     user = updateUser(data);
     // console.log(user)
     // console.log("DATA ", data);
@@ -9610,7 +9613,8 @@ socket.on('one_round', function (data) {
         type: 'SHOULD_SHOW',
         nextPosition: data.nextPosition
     });
-    if (data.round === 1) {
+    if (data.round === 1 && dealOnce) {
+        dealOnce = false;
         _pokerRedux.tableStore.dispatch({
             type: 'DEAL_CARDS',
             card1: './images/cards-png/' + user.hand[0].img,
@@ -9668,7 +9672,13 @@ var decision = function decision(action) {
     } else if (action === 'call') {
         amount = highestBet - tempInvestment;
         investment = highestBet;
-    } else if (action === 'fold') {} else if (action === 'check') {}
+    } else if (action === 'fold') {
+        _pokerRedux.tableStore.dispatch({
+            type: 'FOLD',
+            card1: './images/cards-png/b2fv.png',
+            card2: './images/cards-png/b2fv.png'
+        });
+    } else if (action === 'check') {}
     console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
     socket.emit('act', { action: action, amount: amount, user: user, position: position, investment: investment });
 };
@@ -9680,7 +9690,7 @@ socket.on('end_game', function (data) {
     highestBet = 0;
     initializeBlinds = true;
     user = updateUser(data);
-
+    dealOnce = true;
     socket.emit('start_action', { user: user });
     _pokerRedux.tableStore.dispatch({
         type: 'RESET',
