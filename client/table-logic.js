@@ -117,19 +117,18 @@ socket.on('one_round', data => {
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
         	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round. You have ${user.chipCount} left.`,
-            canCheck
+            canCheck,
+            canRaise: false
         })
     }
 
 })
 
-var decision = function(action) {
-    amount = 0;
+var decision = function(action, amount = 0) {
     let tempInvestment = investment;
     if(action != 'waiting'){
     }
     if(action === 'raise') {
-        amount = prompt('how much?');
         investment = amount;
     } 
     if(action === 'raise') {

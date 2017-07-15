@@ -6237,7 +6237,8 @@ var defaultTableState = {
 	shouldShow: 1000,
 	message: undefined,
 	position: undefined,
-	canCheck: false
+	canCheck: false,
+	canRaise: false
 };
 
 var tableReducer = function tableReducer() {
@@ -6253,9 +6254,11 @@ var tableReducer = function tableReducer() {
 		case 'SHOW_OPTIONS':
 			newState.message = action.message;
 			newState.canCheck = action.canCheck;
+			newState.canRaise = action.canRaise;
 			return newState;
 		case 'CHANGE_ACTION':
 			newState.action = action.action;
+			newState.canRaise = action.canRaise;
 			return newState;
 		case 'OFFICIAL_ACTION':
 			newState.officialAction = state.action;
@@ -9654,17 +9657,18 @@ socket.on('one_round', function (data) {
         _pokerRedux.tableStore.dispatch({
             type: "SHOW_OPTIONS",
             message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round. You have ' + user.chipCount + ' left.',
-            canCheck: canCheck
+            canCheck: canCheck,
+            canRaise: false
         });
     }
 });
 
 var decision = function decision(action) {
-    amount = 0;
+    var amount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
     var tempInvestment = investment;
     if (action != 'waiting') {}
     if (action === 'raise') {
-        amount = prompt('how much?');
         investment = amount;
     }
     if (action === 'raise') {
@@ -16877,8 +16881,10 @@ var Options = function (_Component) {
 			    change = _props.change,
 			    dispatch = _props.dispatch,
 			    position = _props.position,
-			    canCheck = _props.canCheck;
+			    canCheck = _props.canCheck,
+			    canRaise = _props.canRaise;
 
+			var raiseAmount;
 			return _react2.default.createElement(
 				'div',
 				{ id: 'optionForm', className: shouldShow === position ? '' : 'hidden' },
@@ -16895,7 +16901,8 @@ var Options = function (_Component) {
 					'form',
 					{ onSubmit: function onSubmit(e) {
 							e.preventDefault();
-							(0, _tableLogic.decision)(_this2.props.action);
+							(0, _tableLogic.decision)(_this2.props.action, raiseAmount);
+							raiseAmount = undefined;
 							// dispatch({ type: "OFFICIAL_ACTION"});
 						} },
 					_react2.default.createElement(
@@ -16907,7 +16914,10 @@ var Options = function (_Component) {
 							'Fold'
 						),
 						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'fold', onChange: function onChange(e) {
-								return dispatch({ type: "CHANGE_ACTION", action: e.target.value });
+								return dispatch({ type: "CHANGE_ACTION",
+									action: e.target.value,
+									canRaise: false
+								});
 							} })
 					),
 					_react2.default.createElement(
@@ -16919,7 +16929,10 @@ var Options = function (_Component) {
 							'Check'
 						),
 						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'check', onChange: function onChange(e) {
-								return dispatch({ type: "CHANGE_ACTION", action: e.target.value });
+								return dispatch({ type: "CHANGE_ACTION",
+									action: e.target.value,
+									canRaise: false
+								});
 							} })
 					),
 					_react2.default.createElement(
@@ -16931,7 +16944,10 @@ var Options = function (_Component) {
 							'Call'
 						),
 						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'call', onChange: function onChange(e) {
-								return dispatch({ type: "CHANGE_ACTION", action: e.target.value });
+								return dispatch({ type: "CHANGE_ACTION",
+									action: e.target.value,
+									canRaise: false
+								});
 							} })
 					),
 					_react2.default.createElement(
@@ -16943,17 +16959,29 @@ var Options = function (_Component) {
 							'Raise'
 						),
 						_react2.default.createElement('input', { type: 'radio', name: 'action', value: 'raise', onChange: function onChange(e) {
-								return dispatch({ type: "CHANGE_ACTION", action: e.target.value });
+								return dispatch({
+									type: "CHANGE_ACTION",
+									action: e.target.value,
+									canRaise: true
+								});
 							} })
 					),
 					_react2.default.createElement(
 						'div',
-						null,
+						{ className: canRaise ? '' : 'hidden' },
 						_react2.default.createElement(
-							'button',
-							{ type: 'submit' },
-							'Submit'
-						)
+							'label',
+							null,
+							'Raise Value '
+						),
+						_react2.default.createElement('input', { type: 'text', name: 'raiseAmount', onChange: function onChange(e) {
+								return raiseAmount = e.target.value;
+							} })
+					),
+					_react2.default.createElement(
+						'button',
+						{ type: 'submit' },
+						'Submit'
 					)
 				)
 			);
@@ -16969,7 +16997,8 @@ module.exports = (0, _reactRedux.connect)(function (state) {
 		shouldShow: state.shouldShow,
 		action: state.action,
 		position: state.position,
-		canCheck: state.canCheck
+		canCheck: state.canCheck,
+		canRaise: state.canRaise
 	};
 })(Options);
 

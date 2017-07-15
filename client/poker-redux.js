@@ -17,7 +17,8 @@ var defaultTableState = {
   shouldShow: 1000,
   message: undefined,
   position: undefined,
-  canCheck: false
+  canCheck: false,
+  canRaise: false
 };
 
 var tableReducer = (state = defaultTableState, action) => {
@@ -30,9 +31,11 @@ var tableReducer = (state = defaultTableState, action) => {
 		case 'SHOW_OPTIONS':
 			newState.message = action.message;
 			newState.canCheck = action.canCheck;
+			newState.canRaise = action.canRaise;
 			return newState;
 		case 'CHANGE_ACTION':
 			newState.action = action.action;
+			newState.canRaise = action.canRaise;
 			return newState;
 		case 'OFFICIAL_ACTION':
 			newState.officialAction = state.action;
