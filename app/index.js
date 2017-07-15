@@ -93,15 +93,17 @@ io.sockets.on('connection', socket => {
     if(lastToAct === 'game_done') { return; }
     let user = players.filter(function(player){
       return player.name === data.user.name;
-    })
-    console.log(user);
-    console.log("data position", data.position);
-    console.log("next position", nextPosition);
+    })[0]
+    if(data.action === 'fold') {
+      user.folded = true;
+      user.hand[0].img = 'b2fv.png';
+      user.hand[1].img = 'b2fv.png';
+    }
     console.log("ONEEND", oneEnd)
     if(data.position == nextPosition && oneEnd) {
       console.log("HEYO")
       if(data.action !== 'fold' && data.action != 'pass') {
-        pot_highestBet = firstRound( user[0], players, data.action, data.amount, pot, highestBet, data.investment);
+        pot_highestBet = firstRound( user, players, data.action, data.amount, pot, highestBet, data.investment);
         pot = pot_highestBet[0];
         highestBet = pot_highestBet[1];
         players = pot_highestBet[2];
@@ -109,7 +111,7 @@ io.sockets.on('connection', socket => {
       nextPosition = nextPositionCalc(nextPosition, players);
       if(lastToAct === 'new_round' || lastRaise === nextPosition){
         highestBet = 0;
-        nextPosition = 0;
+        nextPosition = nextPositionCalc(0, players);
         newRound = true;
         lastRaise = null;
         boardAction(firstDeck);

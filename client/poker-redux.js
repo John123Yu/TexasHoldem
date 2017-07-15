@@ -70,6 +70,10 @@ var tableReducer = (state = defaultTableState, action) => {
 			newState.river = action.river;
 			newState.message = action.message;
 			return newState;
+		case 'FOLD':
+			newState.card1 = action.card1;
+			newState.card2 = action.card2;
+			return newState;
 		default:
 			return state;
 	}

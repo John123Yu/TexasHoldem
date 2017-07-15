@@ -29,10 +29,14 @@ module.exports = {
 		return [pot, highestBet, players];
 	},
 	nextPositionCalc(nextPosition, players) {
-		nextPosition++;
-		if(!players[nextPosition]) {
-			nextPosition = 0;
-		}
+		let count = 0;
+		do {
+			console.log("PLAYERS ", players);
+			nextPosition++;
+			if(!players[nextPosition])
+				nextPosition = 0;
+			count++;
+		} while (players[nextPosition].folded && count <= players.length);
 		return nextPosition;
 	},
 	is_user(user, users) {

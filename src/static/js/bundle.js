@@ -6293,6 +6293,10 @@ var tableReducer = function tableReducer() {
 			newState.river = action.river;
 			newState.message = action.message;
 			return newState;
+		case 'FOLD':
+			newState.card1 = action.card1;
+			newState.card2 = action.card2;
+			return newState;
 		default:
 			return state;
 	}
@@ -9537,8 +9541,8 @@ var cookies = new _universalCookie2.default();
 
 var user = void 0;
 var position = void 0;
-var investment = void 0;
-var out = false;
+var investment = 0;
+// let out = false;
 var cookie_user = cookies.get('user');
 var amount = void 0;
 var action = void 0;
@@ -9636,13 +9640,13 @@ socket.on('one_round', function (data) {
     }
     if (position === data.nextPosition) {
         var action;
-        if (out === true) {
-            socket.emit('act', {
-                action: 'pass'
-            });
-            return;
-        }
+        // if(out === true){ 
+        //     socket.emit('act', { action: 'pass',}); 
+        //     return;
+        // }
         var canCheck = data.highestBet - investment === 0;
+        // console.log("highest bet ", data.highestBet);
+        // console.log("investment ", investment);
         _pokerRedux.tableStore.dispatch({
             type: "SHOW_OPTIONS",
             message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round. You have ' + user.chipCount + ' left.',
@@ -9664,19 +9668,14 @@ var decision = function decision(action) {
     } else if (action === 'call') {
         amount = highestBet - tempInvestment;
         investment = highestBet;
-    } else if (action === 'fold') {
-        out = true;
-        // socket.emit('act', {
-        //     action: 'fold'
-        // })
-    } else if (action === 'check') {}
+    } else if (action === 'fold') {} else if (action === 'check') {}
     console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
     socket.emit('act', { action: action, amount: amount, user: user, position: position, investment: investment });
 };
 
 socket.on('end_game', function (data) {
     investment = 0;
-    out = false;
+    // out = false;
     amount = 0;
     highestBet = 0;
     initializeBlinds = true;

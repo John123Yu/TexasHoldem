@@ -65,6 +65,7 @@ class Player {
 		this.hand = [];
 		this.chipCount = buyin;
 		this.position;
+		this.folded = false;
 	}
 	takeCard(deck) {
 		this.hand.push(deck.dealRandomCard());

@@ -5,8 +5,8 @@ const cookies = new Cookies();
 
 let user;
 let position;
-let investment;
-let out = false;
+let investment = 0;
+// let out = false;
 let cookie_user = cookies.get('user');
 let amount;
 let action;
@@ -106,13 +106,13 @@ socket.on('one_round', data => {
     }
     if(position === data.nextPosition){
         var action;
-        if(out === true){
-            socket.emit('act', {
-                action: 'pass',
-            })
-            return;
-        }
+        // if(out === true){ 
+        //     socket.emit('act', { action: 'pass',}); 
+        //     return;
+        // }
         let canCheck = (data.highestBet - investment === 0)
+        // console.log("highest bet ", data.highestBet);
+        // console.log("investment ", investment);
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
         	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round. You have ${user.chipCount} left.`,
@@ -137,10 +137,7 @@ var decision = function(action) {
         amount = highestBet - tempInvestment;
         investment = highestBet;
     } else if(action === 'fold') {
-        out = true;
-        // socket.emit('act', {
-        //     action: 'fold'
-        // })
+
     } else if(action === 'check') {
 
     }
@@ -150,7 +147,7 @@ var decision = function(action) {
 
 socket.on('end_game', data => {
     investment = 0;
-    out = false;
+    // out = false;
     amount = 0;
     highestBet = 0
     initializeBlinds = true;
