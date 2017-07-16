@@ -31,12 +31,16 @@ module.exports = {
 	nextPositionCalc(nextPosition, players) {
 		let count = 0;
 		do {
-			console.log("PLAYERS ", players);
 			nextPosition++;
 			if(!players[nextPosition])
 				nextPosition = 0;
 			count++;
-		} while (players[nextPosition].folded && count <= players.length);
+			console.log("PLAYERS ", players);
+			console.log("NEXT POSTITION", nextPosition);
+			if(players[nextPosition])
+				console.log("FOLDED?", players[nextPosition].folded)
+		} while (players[nextPosition].folded);
+		console.log("RETURNED POSITION", nextPosition)
 		return nextPosition;
 	},
 	is_user(user, users) {

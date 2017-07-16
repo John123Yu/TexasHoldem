@@ -23,6 +23,7 @@ let outCount = 1;
 let oneEnd = true;
 let newRound;
 let lastRaise = null;
+let lastPlayerToAct;
 
 module.exports = function Route(app, server) {
 // -----------------------------------------------------//
@@ -70,6 +71,7 @@ io.sockets.on('connection', socket => {
 
   socket.on('start_action', data => {
     playersReady++;
+    lastPlayerToAct = playersReady.length - 1;
     round = 1;
     if(playersReady === users.length){
       players = users;
@@ -94,9 +96,7 @@ io.sockets.on('connection', socket => {
     let user = players.filter(function(player){
       return player.name === data.user.name;
     })[0]
-    if(data.action === 'fold') {
-      user.folded = true;
-    }
+    if(data.action === 'fold') { user.folded = true; }
     console.log("ONEEND", oneEnd)
     if(data.position == nextPosition && oneEnd) {
       console.log("HEYO")
@@ -178,8 +178,16 @@ io.sockets.on('connection', socket => {
   		if(nextPosition == 1)
         return 'new_round';
     } else {
-      if(nextPosition == players.length - outCount )
+      for( i=players.length-1; i>0; i--) {
+        if(!players[i].folded){
+          lastPlayerToAct = i;
+          break;
+        }
+      }
+      if(nextPosition == lastPlayerToAct) {
+        console.log("NEWROUND  HERE")
         return 'new_round';
+      }
   	}
   }
 
