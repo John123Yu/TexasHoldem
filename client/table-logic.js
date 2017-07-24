@@ -54,7 +54,6 @@ $('#new_message').submit( () => {
     return false;
 });
 socket.on('post_new_message', data => {
-    // console.log(user)
     $('#message_board').append("<p>" + data.user + ": " + data.new_message + "</p>");
 });
 
@@ -71,7 +70,6 @@ socket.on('one_round', data => {
     // console.log(user)
     // console.log("DATA ", data);
     highestBet = data.highestBet;
-
     tableStore.dispatch({
         type: 'SHOULD_SHOW',
         nextPosition: data.nextPosition
@@ -107,13 +105,7 @@ socket.on('one_round', data => {
     }
     if(position === data.nextPosition){
         var action;
-        // if(out === true){ 
-        //     socket.emit('act', { action: 'pass',}); 
-        //     return;
-        // }
         let canCheck = (data.highestBet - investment === 0)
-        // console.log("highest bet ", data.highestBet);
-        // console.log("investment ", investment);
         tableStore.dispatch({
         	type: "SHOW_OPTIONS",
         	message: `${data.highestBet - investment} to call. Pot size is ${Math.floor(data.pot * 100) / 100}. You've put in ${investment} this round. You have ${user.chipCount} left.`,
@@ -121,13 +113,10 @@ socket.on('one_round', data => {
             canRaise: false
         })
     }
-
 })
 
 var decision = function(action, amount = 0) {
     let tempInvestment = investment;
-    if(action != 'waiting'){
-    }
     if(action === 'raise') {
         investment = amount;
     } 
@@ -142,8 +131,6 @@ var decision = function(action, amount = 0) {
             card1: './images/cards-png/b2fv.png',
             card2: './images/cards-png/b2fv.png'
         });
-    } else if(action === 'check') {
-
     }
     console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
     socket.emit('act', { action, amount, user, position, investment })

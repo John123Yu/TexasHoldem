@@ -29,26 +29,18 @@ module.exports = {
 		return [pot, highestBet, players];
 	},
 	nextPositionCalc(nextPosition, players) {
-		let count = 0;
 		do {
 			nextPosition++;
 			if(!players[nextPosition])
 				nextPosition = 0;
-			count++;
-			console.log("PLAYERS ", players);
-			console.log("NEXT POSTITION", nextPosition);
-			if(players[nextPosition])
-				console.log("FOLDED?", players[nextPosition].folded)
 		} while (players[nextPosition].folded);
-		console.log("RETURNED POSITION", nextPosition)
 		return nextPosition;
 	},
 	is_user(user, users) {
 		var users_count = users.length;
 		for(var i = 0; i < users_count; i++) {
-			if(user == users[i]) {
+			if(user == users[i])
 				return true;
-			}
 		}
 		return false;
 	}

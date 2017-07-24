@@ -9593,7 +9593,6 @@ $('#new_message').submit(function () {
     return false;
 });
 socket.on('post_new_message', function (data) {
-    // console.log(user)
     $('#message_board').append("<p>" + data.user + ": " + data.new_message + "</p>");
 });
 
@@ -9611,7 +9610,6 @@ socket.on('one_round', function (data) {
     // console.log(user)
     // console.log("DATA ", data);
     highestBet = data.highestBet;
-
     _pokerRedux.tableStore.dispatch({
         type: 'SHOULD_SHOW',
         nextPosition: data.nextPosition
@@ -9647,13 +9645,7 @@ socket.on('one_round', function (data) {
     }
     if (position === data.nextPosition) {
         var action;
-        // if(out === true){ 
-        //     socket.emit('act', { action: 'pass',}); 
-        //     return;
-        // }
         var canCheck = data.highestBet - investment === 0;
-        // console.log("highest bet ", data.highestBet);
-        // console.log("investment ", investment);
         _pokerRedux.tableStore.dispatch({
             type: "SHOW_OPTIONS",
             message: data.highestBet - investment + ' to call. Pot size is ' + Math.floor(data.pot * 100) / 100 + '. You\'ve put in ' + investment + ' this round. You have ' + user.chipCount + ' left.',
@@ -9667,7 +9659,6 @@ var decision = function decision(action) {
     var amount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
     var tempInvestment = investment;
-    if (action != 'waiting') {}
     if (action === 'raise') {
         investment = amount;
     }
@@ -9682,7 +9673,7 @@ var decision = function decision(action) {
             card1: './images/cards-png/b2fv.png',
             card2: './images/cards-png/b2fv.png'
         });
-    } else if (action === 'check') {}
+    }
     console.log('amount', amount, " action ", action, " user ", user, " position ", position, " investment ", investment);
     socket.emit('act', { action: action, amount: amount, user: user, position: position, investment: investment });
 };

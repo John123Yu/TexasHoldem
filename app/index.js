@@ -126,7 +126,6 @@ io.sockets.on('connection', socket => {
     }
   })
 
-
   function newGame() {
     firstDeck.reset();
     playersReady = 0;
@@ -136,14 +135,7 @@ io.sockets.on('connection', socket => {
     outCount = 1;
     oneEnd = true;
     lastRaise = null;
-    // let players = players.map( onePlayer => {
-    //   onePlayer.folded = false;
-    //   return onePlayer;
-    // })
-    if(players.length > 2)
-      nextPosition = 2;
-    else
-      nextPosition = 0;
+    nextPosition = players.length > 2 ? 2 : 0;
     for(let player of players) {
       player.hand = [];
       player.chipCount = 20;
@@ -158,37 +150,37 @@ io.sockets.on('connection', socket => {
   
   function lastToActCalc(action) {
     newRound = false;
+    for( i=players.length-1; i>0; i--) {
+      if(!players[i].folded){
+        lastPlayerToAct = i;
+        break;
+      }
+    }
     console.log("outCount", outCount);
-    if(action === 'fold') { outCount++; }
-  	if(outCount == players.length || round === 4 && nextPosition == players.length - outCount) {
+    if(action === 'fold')
+      outCount++;
+    if(outCount == players.length || round === 4 && nextPosition == lastPlayerToAct) {
       console.log("GAME DONE")
-  		if(oneEnd){
-  			oneEnd = false;
+      if(oneEnd){
+        oneEnd = false;
         newGame();
-  		}
-  		return 'game_done';
-  	}
-  	if(action === 'raise') {
+      }
+      return 'game_done';
+    }
+    if(action === 'raise') {
       lastRaise = nextPosition;
-  		return false;
-  	}
+      return false;
+    }
     if(lastRaise != null)
       return false;
-  	if(round == 1) {
-  		if(nextPosition == 1)
+    if(round == 1) {
+      if(nextPosition == 1)
         return 'new_round';
-    } else {
-      for( i=players.length-1; i>0; i--) {
-        if(!players[i].folded){
-          lastPlayerToAct = i;
-          break;
-        }
-      }
-      if(nextPosition == lastPlayerToAct) {
-        console.log("NEWROUND  HERE")
+    }
+    else {
+      if(nextPosition == lastPlayerToAct)
         return 'new_round';
-      }
-  	}
+    }
   }
 
   function boardAction(deck) {
@@ -198,6 +190,10 @@ io.sockets.on('connection', socket => {
   		board.turnOrRiver(deck);
   	}
   	round++;
+  }
+
+  function calcWinner(){
+
   }
 
 })
