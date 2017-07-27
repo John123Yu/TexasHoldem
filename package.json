@@ -18,6 +18,7 @@
     "express": "~4.10.0",
     "immutable": "^3.8.1",
     "mongoose": "^4.9.3",
+    "pokersolver": "^2.1.2",
     "react": "^15.5.3",
     "react-cookie": "^1.0.5",
     "react-dom": "^15.5.3",

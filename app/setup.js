@@ -1,18 +1,18 @@
-const suits = ["Spades", "Hearts", "Clubs", "Diamonds"];
+const suits = ["s", "h", "c", "d"];
 const values = {
-	'2': 2,
-	'3': 3,
-	'4': 4,
-	'5': 5,
-	'6': 6,
-	'7': 7,
-	'8': 8,
-	'9': 9,
-	'10':10,
-	'j':10,
-	'q':10,
-	'k':10,
-	'1': [11]
+	2: "2",
+	3: "3",
+	4: "4",
+	5: "5",
+	6: "6",
+	7: "7",
+	8: "8",
+	9: "9",
+	10: "T",
+	j: "J",
+	q: "Q",
+	k: "K",
+	1: "A"
 }
 
 class Card {
@@ -31,7 +31,7 @@ class Deck {
 	buildDeck() {
 		suits.forEach( suit => {
 			for(let number in values) {
-				let newestCard = new Card(suit, number, values[number]);
+				let newestCard = new Card(suit, number, values[number] + suit);
 				newestCard.img = imageGenerator(newestCard.suit, newestCard.number);
 				this.cards.push(newestCard);
 			}
@@ -109,11 +109,11 @@ class Board{
 }
 
 function imageGenerator(suit, number) {
-	if(suit == "Spades") {
+	if(suit == "s") {
 		return `s${number}.png`;
-	} else if (suit == "Hearts") {
+	} else if (suit == "h") {
 		return `h${number}.png`;
-	} else if (suit == "Diamonds") {
+	} else if (suit == "d") {
 		return `d${number}.png`;
 	} else {
 		return `c${number}.png`;

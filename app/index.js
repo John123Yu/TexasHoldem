@@ -8,6 +8,7 @@ const startGame = gamePlay.startGame;
 const firstRound = gamePlay.firstRound;
 const nextPositionCalc = gamePlay.nextPositionCalc;
 const is_user = gamePlay.is_user;
+var Handsolver = require('pokersolver').Hand;
 
 let users = [];
 let players = [];
@@ -91,12 +92,12 @@ io.sockets.on('connection', socket => {
 
   socket.on('act', data => {
     console.log("DATA ", data);
-    let lastToAct = lastToActCalc(data.action);
-    if(lastToAct === 'game_done') { return; }
     let user = players.filter(function(player){
       return player.name === data.user.name;
     })[0]
     if(data.action === 'fold') { user.folded = true; }
+    let lastToAct = lastToActCalc(data.action);
+    if(lastToAct === 'game_done') { return; }
     console.log("ONEEND", oneEnd)
     if(data.position == nextPosition && oneEnd) {
       console.log("HEYO")
@@ -127,6 +128,7 @@ io.sockets.on('connection', socket => {
   })
 
   function newGame() {
+    decideWinner();
     firstDeck.reset();
     playersReady = 0;
     board = new Board();
@@ -159,6 +161,12 @@ io.sockets.on('connection', socket => {
     console.log("outCount", outCount);
     if(action === 'fold')
       outCount++;
+    if(action === 'raise') {
+      lastRaise = nextPosition;
+      return false;
+    }
+    if(lastRaise != null)
+      return false;
     if(outCount == players.length || round === 4 && nextPosition == lastPlayerToAct) {
       console.log("GAME DONE")
       if(oneEnd){
@@ -167,12 +175,6 @@ io.sockets.on('connection', socket => {
       }
       return 'game_done';
     }
-    if(action === 'raise') {
-      lastRaise = nextPosition;
-      return false;
-    }
-    if(lastRaise != null)
-      return false;
     if(round == 1) {
       if(nextPosition == 1)
         return 'new_round';
@@ -192,8 +194,37 @@ io.sockets.on('connection', socket => {
   	round++;
   }
 
-  function calcWinner(){
-
+  function decideWinner(){
+    let remainingPlayers = players.filter( player => {
+      return !player.folded
+    })
+    console.log("REMAINING", remainingPlayers)
+    let finalBoard = board.board.map( card => {
+      return card.value;
+    })
+    let remainingCards = remainingPlayers.map( player => {
+      return player.hand;
+    })
+    remainingCards = remainingCards.map( card => {
+      for(var i=0; i<=1; i++){
+        card[i] = card[i].value;
+      }
+      return card;
+    })
+    let remainingHands = remainingCards.map( cards => {
+      return cards.concat(finalBoard)
+    })
+    console.log("REMAINING Hands", remainingHands)
+    remainingHands = remainingHands.map( hand => {
+      bestHand = Handsolver.solve(hand);
+      return bestHand;
+    })
+    var winningHand = Handsolver.winners(remainingHands);
+    console.log("WINNING HAND", winningHand);
+    // let finalHands = remainingCards.map( cards => {
+    //   return cards.concat(finalboard)
+    // })
+    // console.log("FINAL HANDS", finalHands)
   }
 
 })
