@@ -140,7 +140,6 @@ io.sockets.on('connection', socket => {
     nextPosition = players.length > 2 ? 2 : 0;
     for(let player of players) {
       player.hand = [];
-      player.chipCount = 20;
       player.folded = false;
     }
     io.emit('end_game', { 
@@ -196,9 +195,8 @@ io.sockets.on('connection', socket => {
 
   function decideWinner(){
     let remainingPlayers = players.filter( player => {
-      return !player.folded
+      return !player.folded;
     })
-    console.log("REMAINING", remainingPlayers)
     let finalBoard = board.board.map( card => {
       return card.value;
     })
@@ -214,17 +212,32 @@ io.sockets.on('connection', socket => {
     let remainingHands = remainingCards.map( cards => {
       return cards.concat(finalBoard)
     })
-    console.log("REMAINING Hands", remainingHands)
     remainingHands = remainingHands.map( hand => {
       bestHand = Handsolver.solve(hand);
       return bestHand;
     })
     var winningHand = Handsolver.winners(remainingHands);
-    console.log("WINNING HAND", winningHand);
-    // let finalHands = remainingCards.map( cards => {
-    //   return cards.concat(finalboard)
-    // })
-    // console.log("FINAL HANDS", finalHands)
+    winningHand = winningHand[0].cardPool.map( card => {
+      return card.value + card.suit;
+    })
+    console.log("WINING HAND MAPPED", winningHand);
+    for(var j in remainingPlayers) {
+      console.log("KLLL",remainingPlayers[j])
+      for(var i=0; i<remainingPlayers[j].hand.length; i++){
+        if(winningHand.indexOf(remainingPlayers[j].hand[i]) === -1)
+          remainingPlayers[j].folded = true;
+      }
+    }
+    let winningPlayer = players.filter( player => {
+      return !player.folded;
+    })[0]
+    console.log("WINNER", winningPlayer)
+    for(var i=0; i<players.length; i++){
+      if(players[i].hand == winningPlayer.hand) {
+        players[i].chipCount += pot;
+      }
+    }
+    console.log('The winning player is ' + winningPlayer.name + ' with the hand of ' + winningHand);
   }
 
 })
